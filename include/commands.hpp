@@ -8,6 +8,9 @@
 #define __TINBES03__ARDUINOS__COMMANDS__
 
 
+#define MAX_COMMANDS 10
+
+
 /**
  * 
  **/
@@ -29,7 +32,7 @@ void add_instruction();
 void delete_instruction();
 void update_instruction();
 
-static struct s_command commands[] = {
+static struct s_command commands[MAX_COMMANDS] = {
     {"print", &print}
 };
 

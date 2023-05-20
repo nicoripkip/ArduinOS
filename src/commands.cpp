@@ -2,10 +2,10 @@
 #include <Arduino.h>
 
 #define MONITOR_SPEED 115220
-#define MAX_COMMANDS 10
 
 static struct s_command *command_table[MAX_COMMANDS];
 static String input;
+static bool booted = false;
 
 
 /**
@@ -14,15 +14,18 @@ static String input;
  * @param commandName
  * @param argArray
 */
-void parseInput(String &commandName, String *argArray)
+void parseInput(String &commandName, String *argArray, int argCount)
 {
     int i;
-
     for (i = 0; i < MAX_COMMANDS; i++) {
-        if () {
-
-        }
+        commandName.trim();
+        if (commands[i].command == commandName) {
+            commands[i].com_func(argArray, argCount);
+            return;
+        } 
     }
+
+    Serial.println("[error]\tCommand does not exists!");
 }
 
 
@@ -33,7 +36,7 @@ void parseInput(String &commandName, String *argArray)
  * @param delimiter
  * @param argArray
 */
-void splitInput(String &input, String delimiter, String *argArray)
+int splitInput(String &input, String delimiter, String *argArray)
 {
     int currentIndex = 0;
     int lastIndex = 0;
@@ -51,6 +54,8 @@ void splitInput(String &input, String delimiter, String *argArray)
             lastIndex = ++currentIndex;
         }
     }
+
+    return ap+1;
 }
 
 
@@ -59,25 +64,32 @@ void splitInput(String &input, String delimiter, String *argArray)
 */
 void readInput()
 {
-  if (Serial.available() != 0) {
-    char n = Serial.read();
-    Serial.print(n);
-    input+=n;
+    if (booted == false) {
+        Serial.print("[atmega2560]~: ");
+    }
 
-    if (input.endsWith("\n") || input.endsWith("\r")) {
-      Serial.println();
-      for (int i = 0; i < 1; i++) {
-        Serial.print("[info]\tCommando: ");
-        Serial.println(input);
+    booted = true;
 
-        String argArray[10] = {};
-        splitInput(input, " ", argArray);
-        parseInput(argArray[1], argArray);
-      }
+    if (Serial.available() != 0) {
+        char n = Serial.read();
+        Serial.print(n);
+        input+=n;
 
-      input="";
-    } 
-  }
+        if (input.endsWith("\n") || input.endsWith("\r")) {
+            Serial.println();
+            for (int i = 0; i < 1; i++) {
+                Serial.print("[info]\tCommando: ");
+                Serial.println(input);
+
+                String argArray[10] = {};
+                int argCount = splitInput(input, " ", argArray);
+                parseInput(argArray[0], argArray, argCount);
+            }
+
+            input="";
+            Serial.print("[atmega2560]~: ");
+        } 
+    }
 }
 
 
@@ -98,7 +110,9 @@ void print(String *arg, int argCount)
     int i;
 
     for (i = 0; i < argCount; i++) {
-            Serial.print("[test]\t");
-            Serial.println(arg[1]);
+        if (arg[i] == "-m") {
+            Serial.print("[info]\t");
+            Serial.println(arg[++i]);
+        }
     }
 }
