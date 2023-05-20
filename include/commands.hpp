@@ -26,6 +26,7 @@ void sendOutput();
 
 
 void print(String *arg, int argCount);
+void listmem(String *arg, int argCount);
 
 
 void add_instruction();
@@ -33,7 +34,8 @@ void delete_instruction();
 void update_instruction();
 
 static struct s_command commands[MAX_COMMANDS] = {
-    {"print", &print}
+    {"print", &print},
+    {"listmem", &listmem}
 };
 
 #endif

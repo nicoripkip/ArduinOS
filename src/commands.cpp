@@ -1,5 +1,7 @@
 #include "commands.hpp"
 #include <Arduino.h>
+#include "memory.hpp"
+
 
 #define MONITOR_SPEED 115220
 
@@ -35,6 +37,7 @@ void parseInput(String &commandName, String *argArray, int argCount)
  * @param input
  * @param delimiter
  * @param argArray
+ * @return int
 */
 int splitInput(String &input, String delimiter, String *argArray)
 {
@@ -115,4 +118,10 @@ void print(String *arg, int argCount)
             Serial.println(arg[++i]);
         }
     }
+}
+
+
+void listmem(String *arg, int argCount)
+{
+    showMemTable();
 }
