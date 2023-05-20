@@ -14,13 +14,15 @@
 struct s_command
 {
     String command;
-    void (* com_func)();
+    void (*com_func)(String*, int);
 };
 
 
-char *read();
-void send();
-void print();
+void readInput();
+void sendOutput();
+
+
+void print(String *arg, int argCount);
 
 
 void add_instruction();
