@@ -129,11 +129,29 @@ void listmemtable(String *arg, int argCount)
 
 void listphysmem(String *arg, int argCount)
 {
-    showPhysMem();
+    if (argCount > 1) {
+        for (int i = 1; i < argCount; i++) {
+            if (arg[i] == "-h") {
+                Serial.print("[info]\tValue: ");
+                Serial.println(memRead(arg[++i].toInt()));
+            } 
+        }
+    } else {
+        showPhysMem();
+    }
 }
 
 
 void listfreemem(String *arg, int argCount)
 {
     showFreeTable();
+}
+
+
+void neofetch()
+{
+    Serial.println("\t\tOS: arduinOS");
+    Serial.println("\t\tHost: niko");
+    Serial.println("\t\tProcessor: Atmega2560");
+    Serial.println("\t\tArchitecture: Atmel AVR RISC");
 }

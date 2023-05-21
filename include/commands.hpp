@@ -29,6 +29,7 @@ void print(String *arg, int argCount);
 void listmemtable(String *arg, int argCount);
 void listphysmem(String *arg, int argCount);
 void listfreemem(String *arg, int argCount);
+void neofetch();
 
 
 void add_instruction();
@@ -39,7 +40,8 @@ static struct s_command commands[MAX_COMMANDS] = {
     {"print", &print},
     {"listmemtable", &listmemtable},
     {"listphysmem", &listphysmem},
-    {"listfreemem", &listfreemem}
+    {"listfreemem", &listfreemem},
+    {"neofetch", &neofetch}
 };
 
 #endif

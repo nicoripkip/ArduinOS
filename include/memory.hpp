@@ -32,6 +32,8 @@ struct memtable_s
     unsigned long   virtaddr;
     memstate_e      state;
     memtype_e       type;
+    size_t          lenght;
+    uint32_t        p_id;
 };
 
 
@@ -43,8 +45,9 @@ struct memchunk_s
 
 
 void memInit();
-void memAlloc();
+void memAlloc(size_t size);
 void memfree();
+
 int memRead(uint64_t address);
 void memWrite(uint64_t address, int value);
 
