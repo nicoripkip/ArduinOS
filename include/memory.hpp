@@ -14,24 +14,42 @@ enum memstate_e
 
 enum memtype_e
 {
-
+    VOID,
+    CHAR,
+    INT,
+    SHORT,
+    LONG,
+    DOUBLE,
+    FLOAT
 };
 
 
 /**
  * Struct of memory chuch. Every data is a byte in a memory chunk
 */
-struct memchunk_s 
+struct memtable_s 
 {
-    unsigned long addr;
-    memstate_e state;
+    unsigned long   virtaddr;
+    memstate_e      state;
+    memtype_e       type;
+};
+
+
+struct memchunk_s
+{
+    long addr;
+    int value;
 };
 
 
 void memInit();
-void stack_alloc();
-void stack_free();
+void memAlloc();
+void memfree();
+int memRead(uint64_t address);
+void memWrite(uint64_t address, int value);
 
 void showMemTable();
+void showPhysMem();
+void showFreeTable();
 
 #endif

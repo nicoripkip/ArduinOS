@@ -121,7 +121,19 @@ void print(String *arg, int argCount)
 }
 
 
-void listmem(String *arg, int argCount)
+void listmemtable(String *arg, int argCount)
 {
     showMemTable();
+}
+
+
+void listphysmem(String *arg, int argCount)
+{
+    showPhysMem();
+}
+
+
+void listfreemem(String *arg, int argCount)
+{
+    showFreeTable();
 }

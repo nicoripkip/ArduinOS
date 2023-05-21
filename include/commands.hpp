@@ -26,7 +26,9 @@ void sendOutput();
 
 
 void print(String *arg, int argCount);
-void listmem(String *arg, int argCount);
+void listmemtable(String *arg, int argCount);
+void listphysmem(String *arg, int argCount);
+void listfreemem(String *arg, int argCount);
 
 
 void add_instruction();
@@ -35,7 +37,9 @@ void update_instruction();
 
 static struct s_command commands[MAX_COMMANDS] = {
     {"print", &print},
-    {"listmem", &listmem}
+    {"listmemtable", &listmemtable},
+    {"listphysmem", &listphysmem},
+    {"listfreemem", &listfreemem}
 };
 
 #endif
