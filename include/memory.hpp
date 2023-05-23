@@ -46,7 +46,10 @@ struct memchunk_s
 
 void memInit();
 void memAlloc(size_t size);
-void memfree();
+void memFree();
+
+void allocFree();
+void rallocFree();
 
 int memRead(uint64_t address);
 void memWrite(uint64_t address, int value);

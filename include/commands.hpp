@@ -17,7 +17,7 @@
 struct s_command
 {
     String command;
-    void (*com_func)(String*, int);
+    void (*com_func)(String*t, int);
 };
 
 
@@ -25,6 +25,7 @@ void readInput();
 void sendOutput();
 
 
+void help(String *arg, int argCount);
 void print(String *arg, int argCount);
 void listmemtable(String *arg, int argCount);
 void listphysmem(String *arg, int argCount);
@@ -36,7 +37,9 @@ void add_instruction();
 void delete_instruction();
 void update_instruction();
 
+
 static struct s_command commands[MAX_COMMANDS] = {
+    {"help", &help},
     {"print", &print},
     {"listmemtable", &listmemtable},
     {"listphysmem", &listphysmem},

@@ -5,6 +5,7 @@
 
 #define MONITOR_SPEED 115220
 
+
 static struct s_command *command_table[MAX_COMMANDS];
 static String input;
 static bool booted = false;
@@ -64,6 +65,7 @@ int splitInput(String &input, String delimiter, String *argArray)
 
 /**
  * Function to read the input from the serial monitor
+ * 
 */
 void readInput()
 {
@@ -105,8 +107,17 @@ void sendOutput()
 }
 
 
+void help(String *arg, int argCount)
+{
+    
+}
+
+
 /**
  * Function to print some random text
+ * 
+ * @param arg
+ * @param argCount
 */
 void print(String *arg, int argCount)
 {
@@ -121,6 +132,12 @@ void print(String *arg, int argCount)
 }
 
 
+/**
+ * Function to print the contents of the memory table
+ * 
+ * @param arg
+ * @param argCount
+*/
 void listmemtable(String *arg, int argCount)
 {
     showMemTable();
