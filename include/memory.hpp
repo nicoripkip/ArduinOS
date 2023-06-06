@@ -29,10 +29,10 @@ enum memtype_e
 */
 struct memtable_s 
 {
-    unsigned long   virtaddr;
+    long            virtaddr;
     memstate_e      state;
     memtype_e       type;
-    size_t          lenght;
+    size_t          length;
     uint32_t        p_id;
 };
 
@@ -53,6 +53,8 @@ void rallocFree();
 
 int memRead(uint64_t address);
 void memWrite(uint64_t address, int value);
+
+void shiftMemTable();
 
 void showMemTable();
 void showPhysMem();

@@ -12,8 +12,8 @@
 #define PHYS_EXT_MEM_START      0x2200 // 0x0000 - startvalue internal sram
 #define PHYS_EXT_MEM_END        0xA1FF // 0x21FF - endvalue internal sram
 
-#define SYS_INT_MEM_START       0x0281
-#define SYS_INT_MEM_END         0x0301
+#define SYS_INT_MEM_START       0x0316
+#define SYS_INT_MEM_END         0x0396
 #define RESERVED_MEM_RANGE      128
 
 static struct memtable_s memtable[MAX_MEMORY_SIZE];
@@ -21,6 +21,7 @@ static long freetable[30][2];
 static uint32_t fp = 0;
 static uint32_t tp = 0;
 static size_t totalMemorySpace = 0;
+static long addr = 0;
 
 
 /**
@@ -29,16 +30,12 @@ static size_t totalMemorySpace = 0;
 */
 void memInit()
 {
-    int i;
-
-    // for (i = 0; i < MAX_MEMORY_SIZE; i++) {
-    //     struct memtable_s block;
-    //     block.virtaddr = 0;
-    //     block.state = FREE;
-    //     block.type  = VOID;
-
-    //     memtable[i] = block;
-    // }
+    for (short i = 0; i < MAX_MEMORY_SIZE; i++) {
+        memtable[i].virtaddr    = 0;
+        memtable[i].state       = FREE;
+        memtable[i].type        = VOID;
+        memtable[i].length      = 0; 
+    }
 
     allocFree();
 }
@@ -69,6 +66,27 @@ void memWrite(uint64_t address, int value)
 
 
 /**
+ * Function to check if a memoryblock is reserved
+ * 
+ * @param address
+ * @return bool
+*/
+bool memOccupied(long address)
+{
+    for (short i = 0; i < 25; i++) {
+        if (memtable[i].state == OCCUPIED && 
+            address >= memtable[i].virtaddr && 
+            address <= memtable[i].virtaddr+memtable[i].length
+        ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+/**
  * Function to construct the free memory table
  * 
 */
@@ -76,10 +94,8 @@ void allocFree()
 {
     int i = SYS_INT_MEM_START;
 
-    memWrite(0x0294, 24);
-
     while (i < SYS_INT_MEM_END) {
-        if (memRead(i) == 0) {
+        if (memRead(i) == 0 && !memOccupied(i)) {
             int c = 0;
             
             freetable[fp][0] = i;
@@ -111,36 +127,63 @@ void memAlloc(size_t size)
 
     totalMemorySpace+=size;
 
+    addr = 0;
     for (short i = 0; i < 30; i++) {
         if (size == freetable[i][1]) { 
+            addr = freetable[i][0];
+
             freetable[i][0] = 0;
             freetable[i][1] = 0;
 
             break;
-        } else if (size > freetable[i][1]) { 
-            freetable[i][0]+=size;
-            freetable[i][1]-=size;
+        } else if (size > freetable[i][1]) {
+            addr = freetable[i][0];
+
+            Serial.println(freetable[i][0]);
+
+            freetable[i][0] = freetable[i][0]+size;
+            freetable[i][1] = freetable[i][1]-size;
 
             break;
         }
     }
+
+    if (addr == 0) {
+        return;
+    }
+
+    Serial.print("[mem]\tGevonden adres: ");
+    Serial.print(addr);
+    Serial.print(" met grootte: ");
+    Serial.println(size);
+
+    memtable[tp].virtaddr = addr;
+    memtable[tp].state = OCCUPIED;
+    memtable[tp].length = size;
+    tp++;
 }
 
 
+/**
+ * Function to show the memory table
+ * 
+*/
 void showMemTable()
 {
-    Serial.println("address\t\t|\tstate\t\t|\ttype");
+    Serial.println("address\t\t|\tstate\t\t|\ttype\t\t|\tsize");
 
     for (int i = 0; i < MAX_MEMORY_SIZE; i++) {
-        Serial.print(memtable[i].virtaddr);
+        Serial.print(memtable[i].virtaddr, HEX);
         Serial.print("\t\t|\t");
         if (memtable[i].state == 0) {
             Serial.print("OCCUPIED");
         } else {
-            Serial.print("FREE");
+            Serial.print("FREE\t");
         }
+        Serial.print("\t|\t");
+        Serial.print(memtable[i].type);
         Serial.print("\t\t|\t");
-        Serial.println(memtable[i].type);
+        Serial.println(memtable[i].length);
     }
 }
 

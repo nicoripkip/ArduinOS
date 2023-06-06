@@ -8,7 +8,8 @@
 #define __TINBES03__ARDUINOS__COMMANDS__
 
 
-#define MAX_COMMANDS 10
+#define MAX_COMMANDS    10
+#define BUFFER_SIZE     12
 
 
 /**
@@ -16,8 +17,8 @@
  **/
 struct s_command
 {
-    String command;
-    void (*com_func)(String*t, int);
+    char command[BUFFER_SIZE];
+    void (*com_func)();
 };
 
 
@@ -25,7 +26,7 @@ void readInput();
 void sendOutput();
 
 
-void help(String *arg, int argCount);
+void help();
 void print(String *arg, int argCount);
 void listmemtable(String *arg, int argCount);
 void listphysmem(String *arg, int argCount);
@@ -38,13 +39,13 @@ void delete_instruction();
 void update_instruction();
 
 
-static struct s_command commands[MAX_COMMANDS] = {
+static struct s_command command_table[MAX_COMMANDS] = {
     {"help", &help},
-    {"print", &print},
-    {"listmemtable", &listmemtable},
-    {"listphysmem", &listphysmem},
-    {"listfreemem", &listfreemem},
-    {"neofetch", &neofetch}
+    // {"print", &print},
+    // {"listmemtable", &listmemtable},
+    // {"listphysmem", &listphysmem},
+    // {"listfreemem", &listfreemem},
+    // {"neofetch", &neofetch}
 };
 
 #endif

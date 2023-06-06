@@ -6,60 +6,17 @@
 #define MONITOR_SPEED 115220
 
 
-static struct s_command *command_table[MAX_COMMANDS];
-static String input;
-static bool booted = false;
+static char command_buffer[3][BUFFER_SIZE];
+static size_t bp = 0;
 
 
 /**
- * Function to parse the args to the command function
+ * Function to clear the command buffer
  * 
- * @param commandName
- * @param argArray
 */
-void parseInput(String &commandName, String *argArray, int argCount)
+void clearBuffer()
 {
-    int i;
-    for (i = 0; i < MAX_COMMANDS; i++) {
-        commandName.trim();
-        if (commands[i].command == commandName) {
-            commands[i].com_func(argArray, argCount);
-            return;
-        } 
-    }
-
-    Serial.println("[error]\tCommand does not exists!");
-}
-
-
-/**
- * Function to split a string by a delimiter to an array
- * 
- * @param input
- * @param delimiter
- * @param argArray
- * @return int
-*/
-int splitInput(String &input, String delimiter, String *argArray)
-{
-    int currentIndex = 0;
-    int lastIndex = 0;
-    int ap = 0;
-
-    while (currentIndex < (input.length()-1)) {
-        currentIndex = input.indexOf(delimiter, lastIndex);
-
-        if (currentIndex == -1) {
-            currentIndex = input.length();
-            argArray[ap] = input.substring(lastIndex, currentIndex);
-            break;
-        } else {
-            argArray[ap++] = input.substring(lastIndex, currentIndex);
-            lastIndex = ++currentIndex;
-        }
-    }
-
-    return ap+1;
+    memset(command_buffer, 0, sizeof(command_buffer));
 }
 
 
@@ -69,31 +26,38 @@ int splitInput(String &input, String delimiter, String *argArray)
 */
 void readInput()
 {
-    if (booted == false) {
-        Serial.print("[atmega2560]~: ");
-    }
-
-    booted = true;
-
     if (Serial.available() != 0) {
-        char n = Serial.read();
-        Serial.print(n);
-        input+=n;
+        const char input = Serial.read();
+        Serial.print(input);
 
-        if (input.endsWith("\n") || input.endsWith("\r")) {
-            Serial.println();
-            for (int i = 0; i < 1; i++) {
-                Serial.print("[info]\tCommando: ");
-                Serial.println(input);
+        if (strcmp(&input, " ") == 0) {
+            bp++;
 
-                String argArray[10] = {};
-                int argCount = splitInput(input, " ", argArray);
-                parseInput(argArray[0], argArray, argCount);
+            if (bp > 2) {
+                Serial.println("[error]\tToo many arguments supported by the buffer!");
+                bp = 0;
+                clearBuffer();
+                return;
+            }
+        } else if (strcmp(&input, "\r") == 0)  {
+            for (uint16_t i = 0; i < MAX_COMMANDS; i++) {
+                if (strcmp(command_buffer[0], command_table[i].command) == 0) {
+                    command_table[i].com_func();
+                    break;
+                }
+
+                if (i == MAX_COMMANDS-1) {
+                    Serial.println("[error]\tCommand does not exist!");
+                }
             }
 
-            input="";
-            Serial.print("[atmega2560]~: ");
-        } 
+            clearBuffer();
+            bp = 0;
+        } else {
+            strcat(command_buffer[bp], &input);
+        }
+
+        // Serial.print(command_buffer[bp]);
     }
 }
 
@@ -107,9 +71,9 @@ void sendOutput()
 }
 
 
-void help(String *arg, int argCount)
+void help()
 {
-    
+    Serial.println("--- All available commands: ---");
 }
 
 
