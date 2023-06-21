@@ -108,28 +108,28 @@ void print(String *arg, int argCount)
 */
 void listmemtable(String *arg, int argCount)
 {
-    showMemTable();
+    // showMemTable();
 }
 
 
 void listphysmem(String *arg, int argCount)
 {
-    if (argCount > 1) {
-        for (int i = 1; i < argCount; i++) {
-            if (arg[i] == "-h") {
-                Serial.print("[info]\tValue: ");
-                Serial.println(memRead(arg[++i].toInt()));
-            } 
-        }
-    } else {
-        showPhysMem();
-    }
+    // if (argCount > 1) {
+    //     for (int i = 1; i < argCount; i++) {
+    //         if (arg[i] == "-h") {
+    //             Serial.print("[info]\tValue: ");
+    //             Serial.println(memRead(arg[++i].toInt()));
+    //         } 
+    //     }
+    // } else {
+    //     showPhysMem();
+    // }
 }
 
 
 void listfreemem(String *arg, int argCount)
 {
-    showFreeTable();
+    // showFreeTable();
 }
 
 

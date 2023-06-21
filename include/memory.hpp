@@ -5,13 +5,6 @@
 #define __TINBES03__ARDUINOS__MEMORY__
 
 
-enum memstate_e
-{
-    OCCUPIED    = 0,
-    FREE        = 1
-};
-
-
 enum memtype_e
 {
     VOID,
@@ -22,27 +15,36 @@ enum memtype_e
 };
 
 
+enum memstate_e
+{
+    OCCUPIED,
+    FREE
+};
+
+
 /**
  * Struct of memory chuch. Every data is a byte in a memory chunk
 */
 struct memtable_s 
 {
     long            virtaddr;
-    memstate_e      state;
+    char *          name;
     memtype_e       type;
-    size_t          length;
+    memstate_e      state;
     uint32_t        p_id;
 };
 
 
-void pushInt(int x, int y);
+void pushInt(int x);
 void pushChar(char x);
 void pushFloat(float x);
 void pushString(char *x);
 
+int popInt();
 
-void addToMemTable();
-void removeFromMemTable();
+
+void memAlloc(uint16_t pid, char *name, void *data, size_t size, memtype_e type);
+void memFree(uint16_t pid, char *name);
 
 
 
