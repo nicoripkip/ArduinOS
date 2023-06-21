@@ -23,7 +23,6 @@ struct s_command
 
 
 void readInput();
-void sendOutput();
 
 
 void help();
@@ -38,6 +37,12 @@ void add_instruction();
 void delete_instruction();
 void update_instruction();
 
+void files();
+void store();
+void retrieve();
+void erase();
+void freespace();
+
 
 static struct s_command command_table[MAX_COMMANDS] = {
     {"help", &help},
@@ -45,7 +50,12 @@ static struct s_command command_table[MAX_COMMANDS] = {
     // {"listmemtable", &listmemtable},
     // {"listphysmem", &listphysmem},
     // {"listfreemem", &listfreemem},
-    // {"neofetch", &neofetch}
+    {"neofetch", &neofetch},
+    {"FILES", &files},
+    {"STORE", &store},
+    {"RETRIEVE", &retrieve},
+    {"ERASE", &erase},
+    {"FREESPACE", &freespace}
 };
 
 #endif

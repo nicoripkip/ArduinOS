@@ -1,12 +1,13 @@
 #include "commands.hpp"
 #include <Arduino.h>
 #include "memory.hpp"
+#include "filesystem.hpp"
 
 
 #define MONITOR_SPEED 115220
 
 
-static char command_buffer[3][BUFFER_SIZE];
+static char command_buffer[4][BUFFER_SIZE];
 static size_t bp = 0;
 
 
@@ -33,7 +34,7 @@ void readInput()
         if (strcmp(&input, " ") == 0) {
             bp++;
 
-            if (bp > 2) {
+            if (bp > 4) {
                 Serial.println("[error]\tToo many arguments supported by the buffer!");
                 bp = 0;
                 clearBuffer();
@@ -54,7 +55,7 @@ void readInput()
             clearBuffer();
             bp = 0;
         } else {
-            strcat(command_buffer[bp], &input);
+            strncat(command_buffer[bp], &input, BUFFER_SIZE);
         }
 
         // Serial.print(command_buffer[bp]);
@@ -63,17 +64,20 @@ void readInput()
 
 
 /**
- * Function to send output back to the serial monitor
+ * Help command
+ * 
 */
-void sendOutput() 
-{
-
-}
-
-
 void help()
-{
+{    
+    char *t = "";
+
     Serial.println("--- All available commands: ---");
+    for (uint16_t i = 0; i < MAX_COMMANDS; i++) {
+        if (strcmp(command_table[i].command, "")) {
+            Serial.print(" -- ");
+            Serial.println(command_table[i].command);
+        }
+    }
 }
 
 
@@ -135,4 +139,56 @@ void neofetch()
     Serial.println("\t\tHost: niko");
     Serial.println("\t\tProcessor: Atmega2560");
     Serial.println("\t\tArchitecture: Atmel AVR RISC");
+}
+
+
+///
+/// Filesystem operations commands
+///
+void files()
+{
+    Serial.print("[info]\tTotal files in filesystem: ");
+    Serial.println(totalFilesInFAT());
+}
+
+
+void freespace()
+{
+    showFT();
+}
+
+
+void store()
+{
+
+    int t = atoi(command_buffer[2]);
+
+    Serial.println(t);
+
+    if (strcmp(command_buffer[1], "") == 0 || strcmp(command_buffer[2], "") == 0 ||strcmp(command_buffer[3], "") == 0) {
+        Serial.println("[error]\tCannot save file!");
+        return;
+    }
+
+    writeFATEntry(command_buffer[1], atoi(command_buffer[2]), command_buffer[3]);
+}
+
+
+void retrieve()
+{
+    // jemoeder();
+
+    if (strcmp(command_buffer[1], "") == 0) {
+        Serial.println("[error]\tRETRIEVE requires a parameter!");
+        return;
+    }
+
+    char * result = retrieveFATEntry(command_buffer[1]);
+    delete result;
+}
+
+
+void erase()
+{
+    eraseAll();
 }
