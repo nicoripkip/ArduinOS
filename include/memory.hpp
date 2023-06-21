@@ -15,12 +15,10 @@ enum memstate_e
 enum memtype_e
 {
     VOID,
-    CHAR,
+    FLOAT,
     INT,
-    SHORT,
-    LONG,
-    DOUBLE,
-    FLOAT
+    STRING,
+    CHAR
 };
 
 
@@ -37,27 +35,15 @@ struct memtable_s
 };
 
 
-struct memchunk_s
-{
-    long addr;
-    int value;
-};
+void pushInt(int x, int y);
+void pushChar(char x);
+void pushFloat(float x);
+void pushString(char *x);
 
 
-void memInit();
-void memAlloc(size_t size);
-void memFree();
+void addToMemTable();
+void removeFromMemTable();
 
-void allocFree();
-void rallocFree();
 
-int memRead(uint64_t address);
-void memWrite(uint64_t address, int value);
-
-void shiftMemTable();
-
-void showMemTable();
-void showPhysMem();
-void showFreeTable();
 
 #endif
