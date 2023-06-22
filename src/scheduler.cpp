@@ -31,13 +31,44 @@ void initScheduler()
 */
 void addTask(char *file)
 {
-    schedulerTable[sp].p_id = sp;
-    schedulerTable[sp].file = file;
-    schedulerTable[sp].fp = getFileAddress(file);
-    schedulerTable[sp].state = RUNNING;
-    schedulerTable[sp].pc = 0;
-    schedulerTable[sp].sp = 0;
-    schedulerTable[sp].stack = nullptr;
+    for (uint16_t i =0; i < MAX_TASKS; i++) {
+        if (schedulerTable[i].state == TERMINATED && schedulerTable[i].p_id == 0) {
+            schedulerTable[i].p_id = sp;
+            schedulerTable[i].file = file;
+            schedulerTable[i].fp = getFileAddress(file);
+            schedulerTable[i].state = RUNNING;
+            schedulerTable[i].pc = 0;
+            schedulerTable[i].sp = 0;
+            schedulerTable[i].stack = nullptr;
+
+            sp++;
+
+            Serial.print("[info]\tProcess: ");
+            Serial.print(sp);
+            Serial.println(" succesfully created!");
+
+            return;
+        }
+    }
+}
+
+
+/**
+ * Function to resume a task in the scheduler
+ * 
+ * @param pid
+*/
+void resumeTask(uint16_t pid)
+{
+    for (uint16_t i = 0; i < MAX_TASKS; i++) {
+        if (schedulerTable[i].p_id == pid) {
+            schedulerTable[i].state = RUNNING;
+            Serial.println("[info]\tProcess succesfully resumed!");
+            return;
+        }
+    }
+
+    Serial.println("[error]\tProcess not found in the scheduling table!");
 }
 
 
@@ -95,5 +126,15 @@ void removeTask(uint16_t pid)
 */
 void runningTasks()
 {
-
+    for (uint16_t i = 0; i < MAX_TASKS; i++)
+    {  
+        if (schedulerTable[i].state == RUNNING) {
+            Serial.print("process id: ");
+            Serial.print(schedulerTable[i].p_id);
+            Serial.print(" name:  ");
+            Serial.print(schedulerTable[i].file);
+            Serial.print(" state:  ");
+            Serial.println(schedulerTable[i].state);
+        }
+    }
 }

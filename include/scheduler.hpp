@@ -30,6 +30,7 @@ struct task_s
 
 void initScheduler();
 void addTask(char *file);
+void resumeTask(uint16_t pid);
 void suspendTask(uint16_t pid);
 void removeTask(uint16_t pid);
 

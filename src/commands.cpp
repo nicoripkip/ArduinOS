@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include "memory.hpp"
 #include "filesystem.hpp"
+#include "scheduler.hpp"
 
 
 #define MONITOR_SPEED 115220
@@ -212,5 +213,47 @@ void erase()
         Serial.println("[info]\tAll files on FAT erased!");
     } else {
         eraseFATEntry(command_buffer[1]);
+    }
+}
+
+
+void run()
+{
+    if (strcmp(command_buffer[1], "") == 0) {
+        Serial.println("[error]\tRUN requires a parameter!");
+        return;
+    }
+}
+
+
+void list()
+{
+
+}
+
+
+void suspend()
+{
+    if (strcmp(command_buffer[1], "") == 0) {
+        Serial.println("[error]\tSUSPEND requires a parameter!");
+        return;
+    }
+}
+
+
+void resume()
+{
+    if (strcmp(command_buffer[1], "") == 0) {
+        Serial.println("[error]\tRESUME requires a parameter!");
+        return;
+    }
+}
+
+
+void kill()
+{
+    if (strcmp(command_buffer[1], "") == 0) {
+        Serial.println("[error]\tKILL requires a parameter!");
+        return;
     }
 }
