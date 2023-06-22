@@ -152,6 +152,7 @@ void files()
     Serial.println(totalFilesInFAT());
     Serial.println("-------- FILES --------");
     allFilesOnFAT();
+    jemoeder();
 }
 
 
@@ -163,7 +164,6 @@ void freespace()
 
 void store()
 {
-
     int t = atoi(command_buffer[2]);
 
     Serial.println(t);
@@ -191,6 +191,8 @@ void retrieve()
     }
 
     char * result = retrieveFATEntry(command_buffer[1]);
+    Serial.println("-------- Contents: --------");
+    Serial.println(result);
     delete result;
 }
 
