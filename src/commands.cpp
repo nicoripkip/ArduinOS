@@ -205,8 +205,11 @@ void erase()
         return;
     }
 
+    Serial.println("[info]\tStart erasing!");
     if (strcmp(command_buffer[1], "all") == 0) {
+
         eraseAll();
+        Serial.println("[info]\tAll files on FAT erased!");
     } else {
         eraseFATEntry(command_buffer[1]);
     }

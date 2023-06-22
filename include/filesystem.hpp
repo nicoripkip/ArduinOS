@@ -15,6 +15,8 @@ char *retrieveFATEntry(char *file);
 uint32_t totalFilesInFAT();
 void allFilesOnFAT();
 
+uint16_t getFileAddress(char *file);
+
 void showFT();
 void jemoeder();
 void eraseFATEntry(char *file);
