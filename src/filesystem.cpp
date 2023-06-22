@@ -25,18 +25,17 @@ void initFileSystem()
         EEPROM.write(0, 0);
     }
 
-
     t = 0;
     for (i = EEPROM_ADDRESS_START; i < EEPROM_ADDRESS_END; i++) {
         if (readFATEntry(i) != 255) {
             sa=(i+1);
 
             t = 0;
-            while (readFATEntry(1) != 255 && t < 1023) t++;
-            i = t-1;
+            // while (readFATEntry(i) != 255 && t < 1023) t++;
+            // i = t-1;
             
             freeTable[fp][0] = sa;
-            freeTable[fp][1] = 1023 - t;
+            freeTable[fp][1] = 1023 - i;
 
             fp++; 
         }
@@ -177,40 +176,28 @@ char *retrieveFATEntry(char *file)
 {
     char *name = new char[12];
     char *contents = new char[12];
+    uint16_t np = 0;
 
     for (uint16_t i = EEPROM_ADDRESS_START; i < EEPROM_ADDRESS_END; i++) {
         if (readFATEntry(i) == 1) {
             Serial.println("[info]\tFound a file");
 
-            uint16_t t = 0;
-            while (readFATEntry(i+1+t) != 2 && t < 12) {
+            uint16_t t = 1;
+            while (readFATEntry(i+1+t) != 2) {
                 if (readFATEntry(i+1+t) > 29 && readFATEntry(i+1+t) < 173) {
-                    name[t] = readFATEntry(i+1+t);
+                    name[np++] = readFATEntry(i+1+t);
                 }
 
                 t++;
             }
 
-            Serial.println("It gets here");
-
-            uint16_t p = 0;
-            for (uint16_t j; j < strlen(file); j++) {
-                Serial.print("[info]\t");
-                Serial.print(file[j]);
-                Serial.print(" == ");
-                Serial.println(name[j]);
-
-                if (file[j] == name[j]) {
-                    p++;
-                }
-            }
-
-            if (p == strlen(file) && name[p+1] == 0) {
+            if (strcmp(name, file) == 0) {
                 Serial.println("[info]\tFound the correct file!");
                 return name;
             }
 
             i += 1;
+            np = 0;
         }
     }
 
@@ -243,6 +230,38 @@ void eraseAll()
 
     for (i = EEPROM_ADDRESS_START+1; i < EEPROM_ADDRESS_END; i++) {
         EEPROM.write(i, 255);
+    }
+
+    totalFiles = 0;
+    refreshFreeTable();
+}
+
+
+/**
+ * Function to list all files on the FAT
+ * 
+ * 
+*/
+void allFilesOnFAT()
+{
+    char *name = new char[12];
+    uint16_t np = 0;
+
+    for (uint16_t i = EEPROM_ADDRESS_START; i < EEPROM_ADDRESS_END; i++) {
+        if (readFATEntry(i) == 1) {
+            uint16_t t = 1;
+            while (readFATEntry(i+t) != 2) {
+                if (readFATEntry(i+t) > 29 && readFATEntry(i+t) < 173) 
+                    name[np++] = readFATEntry(i+t);
+                t++;
+            }
+
+            Serial.println(name);
+            name = "";
+            np = 0;
+
+            i += t;
+        }
     }
 }
 

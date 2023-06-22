@@ -13,6 +13,7 @@ void writeFATEntry(char *file, size_t size, char *data);
 int readFATEntry(uint32_t address);
 char *retrieveFATEntry(char *file);
 uint32_t totalFilesInFAT();
+void allFilesOnFAT();
 
 void showFT();
 void jemoeder();

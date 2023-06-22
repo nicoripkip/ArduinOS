@@ -149,6 +149,8 @@ void files()
 {
     Serial.print("[info]\tTotal files in filesystem: ");
     Serial.println(totalFilesInFAT());
+    Serial.println("-------- FILES --------");
+    allFilesOnFAT();
 }
 
 
@@ -174,6 +176,10 @@ void store()
 }
 
 
+/**
+ * Command to retrieve a file from the filesystem
+ * 
+*/
 void retrieve()
 {
     // jemoeder();
@@ -188,7 +194,20 @@ void retrieve()
 }
 
 
+/**
+ * Command to erase files from the filesystem
+ * 
+*/
 void erase()
 {
-    eraseAll();
+    if (strcmp(command_buffer[1], "") == 0) {
+        Serial.println("[error]\tERASE requires a parameter!");
+        return;
+    }
+
+    if (strcmp(command_buffer[1], "all") == 0) {
+        eraseAll();
+    } else {
+        eraseFATEntry(command_buffer[1]);
+    }
 }
