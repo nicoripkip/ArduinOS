@@ -34,7 +34,7 @@ void addTask(char *file)
     for (uint8_t i =0; i < MAX_TASKS; i++) {
         if (schedulerTable[i].state == TERMINATED && schedulerTable[i].p_id == 0) {
             schedulerTable[i].p_id = sp;
-            schedulerTable[i].file = file;
+            memcpy(schedulerTable[i].file, file, 12);
             schedulerTable[i].fp = getFileAddress(file);
             schedulerTable[i].state = RUNNING;
             schedulerTable[i].pc = 0;
@@ -43,9 +43,9 @@ void addTask(char *file)
 
             sp++;
 
-            Serial.print("[info]\tProcess: ");
+            Serial.print(F("[info]\tProcess: "));
             Serial.print(sp);
-            Serial.println(" succesfully created!");
+            Serial.println(F(" succesfully created!"));
 
             return;
         }
@@ -63,12 +63,12 @@ void resumeTask(uint8_t pid)
     for (uint8_t i = 0; i < MAX_TASKS; i++) {
         if (schedulerTable[i].p_id == pid) {
             schedulerTable[i].state = RUNNING;
-            Serial.println("[info]\tProcess succesfully resumed!");
+            Serial.println(F("[info]\tProcess succesfully resumed!"));
             return;
         }
     }
 
-    Serial.println("[error]\tProcess not found in the scheduling table!");
+    Serial.println(F("[error]\tProcess not found in the scheduling table!"));
 }
 
 
@@ -82,12 +82,12 @@ void suspendTask(uint8_t pid)
     for (uint8_t i = 0; i < MAX_TASKS; i++) {
         if (schedulerTable[i].p_id == pid) {
             schedulerTable[i].state = SUSPENDED;
-            Serial.println("[info]\tProcess succesfully suspended!");
+            Serial.println(F("[info]\tProcess succesfully suspended!"));
             return;
         }
     }
 
-    Serial.println("[error]\tProcess not found in the scheduling table!");
+    Serial.println(F("[error]\tProcess not found in the scheduling table!"));
 }
 
 
@@ -102,7 +102,7 @@ void removeTask(uint8_t pid)
         if (schedulerTable[i].p_id == pid) {
             schedulerTable[i].p_id = 0;
             schedulerTable[i].state = TERMINATED;
-            schedulerTable[i].file = nullptr;
+            // memset(schedulerTable[i].file, 0, 12);
 
             for (uint16_t j = 0; j < 10; j++) {
                 schedulerTable[i].stack[j] = 0;
@@ -111,11 +111,12 @@ void removeTask(uint8_t pid)
             schedulerTable[i].stack = nullptr;
 
             sp--;
-            Serial.println("[info]\tProcess successfully terminated!");
+            Serial.println(F("[info]\tProcess successfully terminated!"));
+            return;
         }
     }
 
-    Serial.println("[error]\tProcess not found in the scheduling table!");
+    Serial.println(F("[error]\tProcess not found in the scheduling table!"));
 }
 
 
@@ -133,6 +134,8 @@ void runningTasks()
             Serial.print(schedulerTable[i].p_id);
             Serial.print(" name:  ");
             Serial.print(schedulerTable[i].file);
+
+
             Serial.print(" state:  ");
             Serial.print(schedulerTable[i].state);
             Serial.print(" file address: ");

@@ -20,7 +20,7 @@ struct task_s
 {
     uint8_t p_id;
     taskState_e state;
-    char *file;
+    char file[12];
     uint16_t fp;
     uint16_t pc;
     uint16_t sp;

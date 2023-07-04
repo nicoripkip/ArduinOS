@@ -22,54 +22,61 @@ void clearBuffer()
 }
 
 
+bool isNullTerminated(const char* str) {
+  return (str[strlen(str)] == '\0');
+}
+
+
 /**
  * Function to read the input from the serial monitor
  * 
 */
 void readInput()
 {
+    Serial.flush();
     if (Serial.available() != 0) {
-        const char input = Serial.read();
+        // char buffer[1];
+        // size_t b = Serial.readBytes(buffer, sizeof(buffer));
+        char input = Serial.read();
         Serial.print(input);
 
+        // if (strcmp(&command_buffer[bp][0], "'") == 0) {
+        //     if (strcmp(&input, "\r") == 0) {
+        //         Serial.println(F("Heyy het werkt!"));
+        //         clearBuffer();
+        //         bp = 0;
+        //     } else {
+        //         strncat(command_buffer[bp], &input, BUFFER_SIZE);
+        //     }
+        // } else {
+        if (input == ' ') {
+            bp++;
 
-        if (strcmp(&command_buffer[bp][0], "'") == 0) {
-            if (strcmp(&input, "\r") == 0) {
-                Serial.println("Heyy het werkt!");
-                clearBuffer();
+            if (bp > 4) {
+                Serial.println("[error]\tToo many arguments supported by the buffer!");
                 bp = 0;
-            } else {
-                strncat(command_buffer[bp], &input, BUFFER_SIZE);
+                clearBuffer();
+                return;
             }
+        } else if (input == '\r')  {            
+            for (uint8_t i = 0; i < MAX_COMMANDS; i++) {
+                if (strncmp(command_buffer[0], command_table[i].command, 12) == 0) {
+                    command_table[i].com_func();
+                    break;
+                }
+
+                if (i == MAX_COMMANDS-1) {
+                    Serial.println("[error]\tCommand does not exist!");
+                }
+            }
+
+            clearBuffer();
+            bp = 0;
         } else {
-            if (strcmp(&input, " ") == 0) {
-                bp++;
-
-                if (bp > 4) {
-                    Serial.println("[error]\tToo many arguments supported by the buffer!");
-                    bp = 0;
-                    clearBuffer();
-                    return;
-                }
-            } else if (strcmp(&input, "\r") == 0)  {
-                for (uint16_t i = 0; i < MAX_COMMANDS; i++) {
-                    if (strcmp(command_buffer[0], command_table[i].command) == 0) {
-                        command_table[i].com_func();
-                        break;
-                    }
-
-                    if (i == MAX_COMMANDS-1) {
-                        Serial.println("[error]\tCommand does not exist!");
-                    }
-                }
-
-                clearBuffer();
-                bp = 0;
-            } else {
-                strncat(command_buffer[bp], &input, BUFFER_SIZE);
-            }
+            strncat(command_buffer[bp], &input, 1);
         }
     }
+    // }
 }
 
 
@@ -81,10 +88,10 @@ void help()
 {    
     char *t = "";
 
-    Serial.println("--- All available commands: ---");
+    Serial.println(F("--- All available commands: ---"));
     for (uint16_t i = 0; i < MAX_COMMANDS; i++) {
         if (strcmp(command_table[i].command, "")) {
-            Serial.print(" -- ");
+            Serial.print(F(" -- "));
             Serial.println(command_table[i].command);
         }
     }
@@ -103,7 +110,7 @@ void print(String *arg, int argCount)
 
     for (i = 0; i < argCount; i++) {
         if (arg[i] == "-m") {
-            Serial.print("[info]\t");
+            Serial.print(F("[info]\t"));
             Serial.println(arg[++i]);
         }
     }
@@ -113,10 +120,10 @@ void print(String *arg, int argCount)
 void neofetch()
 {
     Serial.flush();
-    Serial.println("\t\tOS: arduinOS");
-    Serial.println("\t\tHost: niko");
-    Serial.println("\t\tProcessor: Atmega2560");
-    Serial.println("\t\tArchitecture: Atmel AVR RISC");
+    Serial.println(F("\t\tOS: arduinOS"));
+    Serial.println(F("\t\tHost: niko"));
+    Serial.println(F("\t\tProcessor: Atmega2560"));
+    Serial.println(F("\t\tArchitecture: Atmel AVR RISC"));
 }
 
 
@@ -126,9 +133,9 @@ void neofetch()
 void files()
 {
     Serial.flush();
-    Serial.print("[info]\tTotal files in filesystem: ");
+    Serial.print(F("[info]\tTotal files in filesystem: "));
     Serial.println(totalFilesInFAT());
-    Serial.println("-------- FILES --------");
+    Serial.println(F("-------- FILES --------"));
     allFilesOnFAT();
 }
 
@@ -147,7 +154,7 @@ void store()
     Serial.println(t);
 
     if (strcmp(command_buffer[1], "") == 0 || strcmp(command_buffer[2], "") == 0 ||strcmp(command_buffer[3], "") == 0) {
-        Serial.println("[error]\tCannot save file!");
+        Serial.println(F("[error]\tCannot save file!"));
         return;
     }
 
@@ -163,12 +170,12 @@ void retrieve()
 {
     Serial.flush();
     if (strcmp(command_buffer[1], "") == 0) {
-        Serial.println("[error]\tRETRIEVE requires a parameter!");
+        Serial.println(F("[error]\tRETRIEVE requires a parameter!"));
         return;
     }
 
     char * result = retrieveFATEntry(command_buffer[1]);
-    Serial.println("-------- Contents: --------");
+    Serial.println(F("-------- Contents: --------"));
     Serial.println(result);
     delete result;
 }
@@ -181,20 +188,20 @@ void retrieve()
 void erase()
 {
     if (strcmp(command_buffer[1], "") == 0) {
-        Serial.println("[error]\tERASE requires a parameter!");
+        Serial.println(F("[error]\tERASE requires a parameter!"));
         return;
     }
 
-    Serial.println("[info]\tStart erasing!");
+    Serial.println(F("[info]\tStart erasing!"));
     if (strcmp(command_buffer[1], "all") == 0) {
 
         eraseAll();
-        Serial.println("[info]\tAll files on FAT erased!");
+        Serial.println(F("[info]\tAll files on FAT erased!"));
     } else {
         eraseFATEntry(command_buffer[1]);
-        Serial.print("[info]\t");
+        Serial.print(F("[info]\t"));
         Serial.print(command_buffer[1]);
-        Serial.println(" erased succesfully!");
+        Serial.println(F(" erased succesfully!"));
     }
 }
 
@@ -206,18 +213,18 @@ void erase()
 void run()
 {
     if (strcmp(command_buffer[1], "") == 0) {
-        Serial.println("[error]\tRUN requires a parameter!");
+        Serial.println(F("[error]\tRUN requires a parameter!"));
         return;
     }
 
-    Serial.println("[info]\tTry to start a new task!");
+    Serial.println(F("[info]\tTry to start a new task!"));
     addTask(command_buffer[1]);
 }
 
 
 void list()
 {
-    Serial.println("-------- Processes: --------");
+    Serial.println(F("-------- Processes: --------"));
     runningTasks();
 }
 
@@ -225,7 +232,7 @@ void list()
 void suspend()
 {
     if (strcmp(command_buffer[1], "") == 0) {
-        Serial.println("[error]\tSUSPEND requires a parameter!");
+        Serial.println(F("[error]\tSUSPEND requires a parameter!"));
         return;
     }
 }
@@ -234,7 +241,7 @@ void suspend()
 void resume()
 {
     if (strcmp(command_buffer[1], "") == 0) {
-        Serial.println("[error]\tRESUME requires a parameter!");
+        Serial.println(F("[error]\tRESUME requires a parameter!"));
         return;
     }
 }
@@ -243,7 +250,7 @@ void resume()
 void kill()
 {
     if (strcmp(command_buffer[1], "") == 0) {
-        Serial.println("[error]\tKILL requires a parameter!");
+        Serial.println(F("[error]\tKILL requires a parameter!"));
         return;
     }
 

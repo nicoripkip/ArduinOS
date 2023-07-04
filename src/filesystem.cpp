@@ -28,23 +28,23 @@ void initFileSystem()
 void writeFATEntry(char *file, size_t size, char *contents)
 {
     if (strcmp(file, "") == 0) {
-        Serial.println("[error]\tNo filename given!");
+        Serial.println(F("[error]\tNo filename given!"));
         return;
     } 
 
     if (size == 0) {
-        Serial.println("[error]\rNo data length given!");
+        Serial.println(F("[error]\rNo data length given!"));
         return;
     }
 
     struct Entry_s document;
     memcpy(document.filename, file, 12);
-    memcpy(document.contents, contents, 60);
+    memcpy(document.contents, contents, 30);
     document.size = size;
 
     availableSpace += sizeof(document);
     if (availableSpace > 1024) {
-        Serial.println("[error]\tNo available free space!");
+        Serial.println(F("[error]\tNo available free space!"));
         return;
     }
 
@@ -52,7 +52,7 @@ void writeFATEntry(char *file, size_t size, char *contents)
     while (EEPROM.read(address) != 255 && address < 1024) address++;
     EEPROM.put(address, document);
 
-    Serial.println("[info]\tFile saved on disk!");
+    Serial.println(F("[info]\tFile saved on disk!"));
 
     EEPROM.write(0, ++totalFiles);
     EEPROM.write(1, availableSpace);
@@ -66,7 +66,7 @@ void writeFATEntry(char *file, size_t size, char *contents)
 char *retrieveFATEntry(char *file)
 {
     if (strcmp(file, "") == 0) {
-        Serial.println("[error]\tNo filename given!");
+        Serial.println(F("[error]\tNo filename given!"));
         return nullptr;
     }
 
@@ -81,7 +81,7 @@ char *retrieveFATEntry(char *file)
         i+=sizeof(_entry);
     }
 
-    Serial.println("[error]\tFile does not exist on filesystem!");
+    Serial.println(F("[error]\tFile does not exist on filesystem!"));
     return nullptr;
 }
 
@@ -97,15 +97,6 @@ void showFT()
         Serial.print(" width value: ");
         Serial.println(EEPROM[i]);
     }
-
-    // for (uint8_t i = 0; i < 30; i++) {
-    //     if (freeTable[i][1]) {
-    //         Serial.print("begin adres: ");
-    //         Serial.print(freeTable[i][0]);
-    //         Serial.print(" met vrije grootte: ");
-    //         Serial.println(freeTable[i][1]);
-    //     }
-    // }
 }
 
 
@@ -128,7 +119,7 @@ uint32_t totalFilesInFAT()
 void eraseFATEntry(char *file)
 {
     if (strcmp(file, "") == 0) {
-        Serial.println("[error]\tNo filename given!");
+        Serial.println(F("[error]\tNo filename given!"));
         return;
     }
 

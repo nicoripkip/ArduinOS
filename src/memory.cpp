@@ -4,13 +4,13 @@
 
 
 #define STACK_ADDRESS_START     0
-#define STACK_ADDRESS_END       256
+#define STACK_ADDRESS_END       100
 #define MEMORY_TABLE_SIZE       25
 #define ZERO_TERMINATOR         0
 
 
 static memtable_s memoryTable[MEMORY_TABLE_SIZE];
-static byte stack[STACK_ADDRESS_END] = { 255 };
+static byte stack[STACK_ADDRESS_END] = { 99 };
 // static uint8_t occupiedTable[10];
 static uint8_t sp = 0;
 
@@ -36,7 +36,7 @@ byte popByte()
 void pushInt(int x)
 {
     if (2 + sp > STACK_ADDRESS_END) {
-        Serial.println("[error]\tNo space available in memory!");
+        Serial.println(F("[error]\tNo space available in memory!"));
         return;
     }
 
@@ -53,7 +53,7 @@ void pushInt(int x)
 void pushChar(char x)
 {
     if (2 + sp > STACK_ADDRESS_END) {
-        Serial.println("[error]\tNo space available in memory!");
+        Serial.println(F("[error]\tNo space available in memory!"));
         return;
     }
 
@@ -78,13 +78,13 @@ void pushString(char *x)
     uint16_t l = strlen(x);
 
     if (3 + l + sp > STACK_ADDRESS_END) {
-        Serial.println("[error]\tNo space available in memory!");
+        Serial.println(F("[error]\tNo space available in memory!"));
         return;
     }
 
     pushByte(STRING);
     pushByte(l);
-    for (uint16_t i = 0; i < l; i++) {
+    for (uint8_t i = 0; i < l; i++) {
         pushByte(x[i]);
     }
     pushByte(ZERO_TERMINATOR);
@@ -119,7 +119,7 @@ void memAlloc(uint8_t pid, char *name, void *data, size_t size, memtype_e type)
 
     }
 
-    for (uint16_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
+    for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
         if (memoryTable[i].state == FREE) {
             memoryTable[i].p_id = pid;
             memoryTable[i].name = name;
@@ -138,7 +138,7 @@ void memAlloc(uint8_t pid, char *name, void *data, size_t size, memtype_e type)
 */
 void memFree(uint8_t pid, char *name)
 {
-    for (uint16_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
+    for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
         if (memoryTable[i].p_id == pid && strcmp(memoryTable[i].name, name) == 0 && memoryTable[i].state == OCCUPIED) {
             if (memoryTable[i].type == STRING) {
 

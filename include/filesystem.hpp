@@ -11,7 +11,7 @@
 struct Entry_s
 {
     char filename[12];
-    char contents[60];
+    char contents[30];
     size_t size;
 };
 
