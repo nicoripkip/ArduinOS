@@ -35,8 +35,6 @@ void readInput()
 {
     Serial.flush();
     if (Serial.available() != 0) {
-        // char buffer[1];
-        // size_t b = Serial.readBytes(buffer, sizeof(buffer));
         char input = Serial.read();
         Serial.print(input);
 
@@ -117,6 +115,10 @@ void print(String *arg, int argCount)
 }
 
 
+/**
+ * 
+ * 
+*/
 void neofetch()
 {
     Serial.flush();
@@ -146,6 +148,10 @@ void freespace()
 }
 
 
+/**
+ * Command to store a file in the FAT
+ * 
+*/
 void store()
 {
     Serial.flush();
@@ -157,6 +163,8 @@ void store()
         Serial.println(F("[error]\tCannot save file!"));
         return;
     }
+
+    Serial.println(command_buffer[3]);
 
     writeFATEntry(command_buffer[1], atoi(command_buffer[2]), command_buffer[3]);
 }

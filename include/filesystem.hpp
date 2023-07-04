@@ -10,9 +10,9 @@
 
 struct Entry_s
 {
-    char filename[12];
-    char contents[30];
-    size_t size;
+    char        filename[12];           // The name of the file stored in memory
+    uint16_t    contents;               // The pointer to the file contents
+    size_t      size;                   // The total size of the file
 };
 
 

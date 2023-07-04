@@ -145,7 +145,15 @@ void runningTasks()
 }
 
 
+/**
+ * 
+ * 
+*/
 void runTasks()
 {
-    
+    for (uint8_t i = 0; i < MAX_TASKS; i++) {
+        if (schedulerTable[i].state == RUNNING) {
+            schedulerTable[i].fp++;
+        }
+    }
 }

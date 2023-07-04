@@ -4,13 +4,13 @@
 
 
 #define STACK_ADDRESS_START     0
-#define STACK_ADDRESS_END       100
+#define STACK_ADDRESS_END       256
 #define MEMORY_TABLE_SIZE       25
 #define ZERO_TERMINATOR         0
 
 
 static memtable_s memoryTable[MEMORY_TABLE_SIZE];
-static byte stack[STACK_ADDRESS_END] = { 99 };
+static byte stack[STACK_ADDRESS_END] = { 255 };
 // static uint8_t occupiedTable[10];
 static uint8_t sp = 0;
 

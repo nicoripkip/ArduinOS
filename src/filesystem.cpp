@@ -2,9 +2,14 @@
 #include <EEPROM.h>
 
 
+#define MAX_FAT_SIZE        15
+#define BEGIN_CONTENT_SPACE 280
+
+
 static uint8_t  totalFiles = 0;
 static uint16_t availableSpace = 0;
-static Entry_s _entry;
+static Entry_s FAT[MAX_FAT_SIZE];
+static char buffer[30];
 
 
 /**
@@ -15,6 +20,7 @@ void initFileSystem()
 {
     totalFiles = EEPROM.read(0);
     availableSpace = EEPROM.read(1);
+    EEPROM.get(2, FAT);
 }
 
 
@@ -37,31 +43,58 @@ void writeFATEntry(char *file, size_t size, char *contents)
         return;
     }
 
-    struct Entry_s document;
-    memcpy(document.filename, file, 12);
-    memcpy(document.contents, contents, 30);
-    document.size = size;
-
-    availableSpace += sizeof(document);
-    if (availableSpace > 1024) {
-        Serial.println(F("[error]\tNo available free space!"));
-        return;
+    for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
+        if (strcmp(file, FAT[i].filename) == 0) {
+            Serial.println(F("[error]\tFile already exists on disk!"));
+            return;
+        }
     }
 
-    uint16_t address = 2;
-    while (EEPROM.read(address) != 255 && address < 1024) address++;
-    EEPROM.put(address, document);
+    Serial.print("Grootte eeprom: ");
+    Serial.println(contents);
 
-    Serial.println(F("[info]\tFile saved on disk!"));
+    uint16_t i;
+    for (i = BEGIN_CONTENT_SPACE; i < EEPROM.length(); i++) {
+        if (EEPROM.read(i) == 255) {
+            uint16_t j;
+            for (j = i; j < EEPROM.length(); j++) {
+                if (EEPROM.read(j) != 255 || j > size) {
+                    break;
+                }
+            }
 
-    EEPROM.write(0, ++totalFiles);
-    EEPROM.write(1, availableSpace);
+            if (j >= size) {
+                break;
+            }
+        }
+    }
+
+    if (i+size+1 < EEPROM.length()) {
+        memcpy(FAT[totalFiles].filename, file, 12);
+        FAT[totalFiles].contents = i;
+        FAT[totalFiles].size = size;
+
+        for (uint16_t j = i; j < i + size; j++) {
+            Serial.println(contents[j-i]);
+            EEPROM.write(j, (int)contents[j-i]);
+        }
+
+        EEPROM.put(2, FAT);
+        EEPROM.write(0, ++totalFiles);
+        EEPROM.write(1, (availableSpace+size));
+
+        Serial.println(F("[info]\tFile saved on disk!"));
+    } else {
+        Serial.println(F("[error]\tNot enough space on disk!"));
+    }
 }
 
 
 /**
+ * Function to retrieve a file from the FAT and read its contents
  * 
- * 
+ * @param file
+ * @returns char
 */
 char *retrieveFATEntry(char *file)
 {
@@ -70,31 +103,42 @@ char *retrieveFATEntry(char *file)
         return nullptr;
     }
 
-    uint16_t i = 2;
-    while (i < EEPROM.length()) { 
-        EEPROM.get(i, _entry);
+    memset(buffer, 0, 30);
 
-        if (strcmp(file, _entry.filename) == 0) {
-            return _entry.contents;
+    uint8_t i;
+    for (i = 0; i < MAX_FAT_SIZE; i++) {
+        if (strcmp(file, FAT[i].filename) == 0) {
+            Serial.println(F("[info]\tFound file on FAT"));
+            Serial.println(FAT[i].contents);
+
+            for (uint16_t j = FAT[i].contents; j < FAT[i].contents + FAT[i].size; j++) {
+                char b = EEPROM.read(j);
+                strncat(buffer, &b, 1);
+            }
+            
+            return buffer;
         }
-
-        i+=sizeof(_entry);
     }
+
 
     Serial.println(F("[error]\tFile does not exist on filesystem!"));
     return nullptr;
 }
 
 
+/**
+ * Function to show the freespace on the eeprom
+ * 
+*/
 void showFT()
 {
     Serial.flush();
-    Serial.println("---------------------------------------------------------");
+    Serial.println(F("---------------------------------------------------------"));
 
-    for (uint8_t i = 0; i < 160; i++) {
-        Serial.print("Address: ");
+    for (uint16_t i = BEGIN_CONTENT_SPACE; i < EEPROM.length(); i++) {
+        Serial.print(F("Address: "));
         Serial.print(i);
-        Serial.print(" width value: ");
+        Serial.print(F(" width value: "));
         Serial.println(EEPROM[i]);
     }
 }
@@ -132,12 +176,19 @@ void eraseFATEntry(char *file)
 */
 void eraseAll()
 {
+    for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
+        memcpy(FAT[i].filename, "", 1);
+        FAT[i].size = 0;
+        FAT[i].contents = 0;
+    }
+
     for (uint16_t i = 1; i < EEPROM.length(); i++) {
         EEPROM.write(i, 255);
     }
 
     EEPROM.write(0, (totalFiles = 0));
     EEPROM.write(1, (availableSpace = 0));
+    EEPROM.put(2, FAT);
 }
 
 
