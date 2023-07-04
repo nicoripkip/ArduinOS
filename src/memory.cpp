@@ -159,17 +159,20 @@ void memFree(uint8_t pid, char *name)
  * 
  * 
 */
-byte *memReserve()
+byte *stackAlloc(size_t size)
 {
-    for (uint8_t i = 0; i < STACK_ADDRESS_END; i++) {
+    for (uint8_t i = STACK_ADDRESS_START; i < STACK_ADDRESS_END; i++) {
         if (stack[i] == 255) {
-            uint8_t t = 0;
-            while (stack[i+t] == 255 && t < 11) {
-                t++;
-            }
+            uint8_t j;
+            for (j = i; i < i + size; i++) if (stack[j] != 255) break;
 
-            if (t >= 10) {
-                return &stack[i];
+            if (j >= i+size) {
+                if (j+1 < STACK_ADDRESS_END) {
+                    return &stack[i];
+                } else {
+                    Serial.println(F("[error]\tProcess can't allocate stack"));
+                    return nullptr;
+                }
             }
         }
     }

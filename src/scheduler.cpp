@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "scheduler.hpp"
 #include "filesystem.hpp"
+#include "memory.hpp"
 
 
 #define MAX_TASKS       25
@@ -39,7 +40,7 @@ void addTask(char *file)
             schedulerTable[i].state = RUNNING;
             schedulerTable[i].pc = 0;
             schedulerTable[i].sp = 0;
-            schedulerTable[i].stack = nullptr;
+            schedulerTable[i].stack = stackAlloc(30);
 
             sp++;
 
@@ -130,16 +131,16 @@ void runningTasks()
     for (uint16_t i = 0; i < MAX_TASKS; i++)
     {  
         if (schedulerTable[i].state == RUNNING) {
-            Serial.print("process id: ");
+            Serial.print(F("process id: "));
             Serial.print(schedulerTable[i].p_id);
-            Serial.print(" name:  ");
+            Serial.print(F(" name:  "));
             Serial.print(schedulerTable[i].file);
-
-
-            Serial.print(" state:  ");
+            Serial.print(F(" state:  "));
             Serial.print(schedulerTable[i].state);
-            Serial.print(" file address: ");
-            Serial.println(schedulerTable[i].fp);
+            Serial.print(F(" file address: "));
+            Serial.print(schedulerTable[i].fp);
+            Serial.print(F(" stack pointer: "));
+            Serial.println((uint8_t)schedulerTable[i].stack);
         }
     }
 }

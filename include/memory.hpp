@@ -50,7 +50,7 @@ int popInt();
 
 void memAlloc(uint8_t pid, char *name, void *data, size_t size, memtype_e type);
 void memFree(uint8_t pid, char *name);
-byte *memReserve();
+byte *stackAlloc(size_t size);
 
 
 

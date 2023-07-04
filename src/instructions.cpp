@@ -1,4 +1,5 @@
 #include "instructions.hpp"
+#include "instructionset.hpp"
 
 
 /**
@@ -6,127 +7,147 @@
  * 
  * @param instruction
 */
-void execute(byte instruction)
+void execute(byte instruction, byte x, byte y)
 {
     switch (instruction)
     {
-        case 1:
+        case CHAR:
             break;
-        case 2:
+        case INT:
             break;
-        case 3:
+        case STRING:
             break;
-        case 4:
+        case FLOAT:
             break;
-        case 5:
+        case SET:
             break;
-        case 6:
+        case GET:
             break;
-        case 7:
+        case INCREMENT:
             break;
-        case 8:
+        case DECREMENT:
             break;
-        case 9:
+        case PLUS:
             break;
-        case 10:
+        case MINUS:
             break;
-        case 11:
+        case TIMES:
             break;
-        case 12:
+        case DIVIDEDBY:
             break;
-        case 13:
+        case MODULUS:
             break;
-        case 14:
+        case UNARYMINUS:
             break;
-        case 15:
+        case EQUALS:
             break;
-        case 16:
+        case NOTEQUALS:
             break;
-        case 17:
+        case LESSTHAN:
             break;
-        case 18:
+        case LESSTHANOREQUALS:
             break;
-        case 19:
+        case GREATERTHAN:
             break;
-        case 20:
+        case GREATERTHANOREQUALS:
             break;
-        case 21:
+        case LOGICALAND:
             break;
-        case 22:
+        case LOGICALOR:
             break;
-        case 23:
+        case LOGICALXOR:
             break;
-        case 24:
+        case LOGICALNOT:
             break;
-        case 25:
+        case BITWISEAND:
             break;
-        case 26:
+        case BITWISEOR:
             break;
-        case 27:
+        case BITWISEXOR:
             break;
-        case 28:
+        case BITWISENOT:
             break;
-        case 39:
+        case TOCHAR:
             break;
-        case 40:
+        case TOINT:
             break;
-        case 41:
+        case TOFLOAT:
             break;
-        case 42:
+        case ROUND:
             break;
-        case 43:
+        case FLOOR:
             break;
-        case 44:
+        case CEIL:
             break;
-        case 45:
+        case MIN:
             break;
-        case 46:
+        case MAX:
             break;
-        case 47:
+        case ABS:
             break;
-        case 48:
+        case CONSTRAIN:
             break;
-        case 49:
+        case MAP:
             break;
-        case 50:
+        case POW:
             break;
-        case 51:
+        case SQ:
             break;
-        case 52:
+        case SQRT:
             break;
-        case 53:
+        case DELAY:
             break;
-        case 54:
+        case DELAYUNTIL:
             break;
-        case 55:
+        case MILLIS:
             break;
-        case 56:
+        case PINMODE:
             break;
-        case 57:
+        case ANALOGREAD:
             break;
-        case 58:
+        case ANALOGWRITE:
             break;
-        case 59:
+        case DIGITALREAD:
             break;
-        case 128:
+        case DIGITALWRITE:
             break;
-        case 129:
+        case PRINT:
             break;
-        case 130:
+        case PRINTLN:
             break;
-        case 131:
+        case OPEN:
             break;
-        case 132:
+        case CLOSE:
             break;
-        case 133:
+        case WRITE:
             break;
-        case 134:
+        case READINT:
             break;
-        case 135:
+        case READCHAR:
             break;
-        case 136:
+        case READFLOAT:
             break;
-        case 137:
+        case READSTRING:
+            break;
+        case IF:
+            break;
+        case ELSE:
+            break;
+        case ENDIF:
+            break;
+        case WHILE:
+            break;
+        case ENDWHILE:
+            break;
+        case LOOP:
+            break;
+        case ENDLOOP:
+            break;
+        case STOP:
+            break;
+        case FORK:
+            break;
+        case WAITUNTILDONE:
             break;
         default:
 

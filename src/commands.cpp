@@ -9,6 +9,7 @@
 
 
 static char command_buffer[4][BUFFER_SIZE];
+static char instructionBuffer[30];
 static size_t bp = 0;
 
 
@@ -38,15 +39,6 @@ void readInput()
         char input = Serial.read();
         Serial.print(input);
 
-        // if (strcmp(&command_buffer[bp][0], "'") == 0) {
-        //     if (strcmp(&input, "\r") == 0) {
-        //         Serial.println(F("Heyy het werkt!"));
-        //         clearBuffer();
-        //         bp = 0;
-        //     } else {
-        //         strncat(command_buffer[bp], &input, BUFFER_SIZE);
-        //     }
-        // } else {
         if (input == ' ') {
             bp++;
 
@@ -74,7 +66,6 @@ void readInput()
             strncat(command_buffer[bp], &input, 1);
         }
     }
-    // }
 }
 
 
@@ -154,19 +145,30 @@ void freespace()
 */
 void store()
 {
-    Serial.flush();
-    int t = atoi(command_buffer[2]);
-
-    Serial.println(t);
-
-    if (strcmp(command_buffer[1], "") == 0 || strcmp(command_buffer[2], "") == 0 ||strcmp(command_buffer[3], "") == 0) {
+    if (strcmp(command_buffer[1], "") == 0 || strcmp(command_buffer[2], "") == 0) {
         Serial.println(F("[error]\tCannot save file!"));
         return;
     }
 
-    Serial.println(command_buffer[3]);
+    Serial.flush();
 
-    writeFATEntry(command_buffer[1], atoi(command_buffer[2]), command_buffer[3]);
+    Serial.println(F("[info]\tType in the file contents: "));
+
+    while (true) {
+        if (Serial.available() != 0) {
+            char b = Serial.read();
+            Serial.print(b);
+
+            if (b == '\r') {
+                Serial.println(instructionBuffer);
+                writeFATEntry(command_buffer[1], atoi(command_buffer[2]), instructionBuffer);
+                memset(instructionBuffer, 0, sizeof(instructionBuffer));
+                return;
+            } else {
+                strncat(instructionBuffer, &b, 1);
+            }
+        }
+    }
 }
 
 

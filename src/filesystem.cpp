@@ -50,7 +50,7 @@ void writeFATEntry(char *file, size_t size, char *contents)
         }
     }
 
-    Serial.print("Grootte eeprom: ");
+    Serial.print(F("Grootte eeprom: "));
     Serial.println(contents);
 
     uint16_t i;

@@ -8,7 +8,7 @@
 #define __TINBES03__ARDUINOS__INSTRUCTIONS__
 
 
-void execute(byte instruction);
+void execute(byte instruction, byte x, byte y);
 
 
 #endif
