@@ -18,7 +18,7 @@ enum taskState_e
 
 struct task_s 
 {
-    uint32_t p_id;
+    uint8_t p_id;
     taskState_e state;
     char *file;
     uint16_t fp;
@@ -30,11 +30,11 @@ struct task_s
 
 void initScheduler();
 void addTask(char *file);
-void resumeTask(uint16_t pid);
-void suspendTask(uint16_t pid);
-void removeTask(uint16_t pid);
+void resumeTask(uint8_t pid);
+void suspendTask(uint8_t pid);
+void removeTask(uint8_t pid);
 
 void runningTasks();
-
+void runTasks();
 
 #endif

@@ -15,6 +15,10 @@ enum memtype_e
 };
 
 
+/**
+ * 
+ * 
+*/
 enum memstate_e
 {
     OCCUPIED,
@@ -24,14 +28,15 @@ enum memstate_e
 
 /**
  * Struct of memory chuch. Every data is a byte in a memory chunk
+ * 
 */
 struct memtable_s 
 {
-    long            virtaddr;
+    uint32_t        virtaddr;
     char *          name;
     memtype_e       type;
     memstate_e      state;
-    uint32_t        p_id;
+    uint8_t        p_id;
 };
 
 
@@ -43,8 +48,9 @@ void pushString(char *x);
 int popInt();
 
 
-void memAlloc(uint16_t pid, char *name, void *data, size_t size, memtype_e type);
-void memFree(uint16_t pid, char *name);
+void memAlloc(uint8_t pid, char *name, void *data, size_t size, memtype_e type);
+void memFree(uint8_t pid, char *name);
+byte *memReserve();
 
 
 

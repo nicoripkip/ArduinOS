@@ -32,34 +32,43 @@ void readInput()
         const char input = Serial.read();
         Serial.print(input);
 
-        if (strcmp(&input, " ") == 0) {
-            bp++;
 
-            if (bp > 4) {
-                Serial.println("[error]\tToo many arguments supported by the buffer!");
-                bp = 0;
+        if (strcmp(&command_buffer[bp][0], "'") == 0) {
+            if (strcmp(&input, "\r") == 0) {
+                Serial.println("Heyy het werkt!");
                 clearBuffer();
-                return;
+                bp = 0;
+            } else {
+                strncat(command_buffer[bp], &input, BUFFER_SIZE);
             }
-        } else if (strcmp(&input, "\r") == 0)  {
-            for (uint16_t i = 0; i < MAX_COMMANDS; i++) {
-                if (strcmp(command_buffer[0], command_table[i].command) == 0) {
-                    command_table[i].com_func();
-                    break;
-                }
-
-                if (i == MAX_COMMANDS-1) {
-                    Serial.println("[error]\tCommand does not exist!");
-                }
-            }
-
-            clearBuffer();
-            bp = 0;
         } else {
-            strncat(command_buffer[bp], &input, BUFFER_SIZE);
-        }
+            if (strcmp(&input, " ") == 0) {
+                bp++;
 
-        // Serial.print(command_buffer[bp]);
+                if (bp > 4) {
+                    Serial.println("[error]\tToo many arguments supported by the buffer!");
+                    bp = 0;
+                    clearBuffer();
+                    return;
+                }
+            } else if (strcmp(&input, "\r") == 0)  {
+                for (uint16_t i = 0; i < MAX_COMMANDS; i++) {
+                    if (strcmp(command_buffer[0], command_table[i].command) == 0) {
+                        command_table[i].com_func();
+                        break;
+                    }
+
+                    if (i == MAX_COMMANDS-1) {
+                        Serial.println("[error]\tCommand does not exist!");
+                    }
+                }
+
+                clearBuffer();
+                bp = 0;
+            } else {
+                strncat(command_buffer[bp], &input, BUFFER_SIZE);
+            }
+        }
     }
 }
 
@@ -101,41 +110,9 @@ void print(String *arg, int argCount)
 }
 
 
-/**
- * Function to print the contents of the memory table
- * 
- * @param arg
- * @param argCount
-*/
-void listmemtable(String *arg, int argCount)
-{
-    // showMemTable();
-}
-
-
-void listphysmem(String *arg, int argCount)
-{
-    // if (argCount > 1) {
-    //     for (int i = 1; i < argCount; i++) {
-    //         if (arg[i] == "-h") {
-    //             Serial.print("[info]\tValue: ");
-    //             Serial.println(memRead(arg[++i].toInt()));
-    //         } 
-    //     }
-    // } else {
-    //     showPhysMem();
-    // }
-}
-
-
-void listfreemem(String *arg, int argCount)
-{
-    // showFreeTable();
-}
-
-
 void neofetch()
 {
+    Serial.flush();
     Serial.println("\t\tOS: arduinOS");
     Serial.println("\t\tHost: niko");
     Serial.println("\t\tProcessor: Atmega2560");
@@ -148,11 +125,11 @@ void neofetch()
 ///
 void files()
 {
+    Serial.flush();
     Serial.print("[info]\tTotal files in filesystem: ");
     Serial.println(totalFilesInFAT());
     Serial.println("-------- FILES --------");
     allFilesOnFAT();
-    jemoeder();
 }
 
 
@@ -164,6 +141,7 @@ void freespace()
 
 void store()
 {
+    Serial.flush();
     int t = atoi(command_buffer[2]);
 
     Serial.println(t);
@@ -183,8 +161,7 @@ void store()
 */
 void retrieve()
 {
-    // jemoeder();
-
+    Serial.flush();
     if (strcmp(command_buffer[1], "") == 0) {
         Serial.println("[error]\tRETRIEVE requires a parameter!");
         return;
@@ -215,22 +192,33 @@ void erase()
         Serial.println("[info]\tAll files on FAT erased!");
     } else {
         eraseFATEntry(command_buffer[1]);
+        Serial.print("[info]\t");
+        Serial.print(command_buffer[1]);
+        Serial.println(" erased succesfully!");
     }
 }
 
 
+/**
+ * Function
+ * 
+*/
 void run()
 {
     if (strcmp(command_buffer[1], "") == 0) {
         Serial.println("[error]\tRUN requires a parameter!");
         return;
     }
+
+    Serial.println("[info]\tTry to start a new task!");
+    addTask(command_buffer[1]);
 }
 
 
 void list()
 {
-
+    Serial.println("-------- Processes: --------");
+    runningTasks();
 }
 
 
@@ -258,4 +246,6 @@ void kill()
         Serial.println("[error]\tKILL requires a parameter!");
         return;
     }
+
+    removeTask(atoi(command_buffer[1]));
 }

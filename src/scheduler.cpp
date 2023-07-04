@@ -16,7 +16,7 @@ static uint16_t sp = 0;
 */
 void initScheduler()
 {
-    for (uint16_t i = 0; i < MAX_TASKS; i++) {
+    for (uint8_t i = 0; i < MAX_TASKS; i++) {
         schedulerTable[i].p_id  = 0;
         schedulerTable[i].state = TERMINATED;
         schedulerTable[i].pc    = 0;
@@ -31,7 +31,7 @@ void initScheduler()
 */
 void addTask(char *file)
 {
-    for (uint16_t i =0; i < MAX_TASKS; i++) {
+    for (uint8_t i =0; i < MAX_TASKS; i++) {
         if (schedulerTable[i].state == TERMINATED && schedulerTable[i].p_id == 0) {
             schedulerTable[i].p_id = sp;
             schedulerTable[i].file = file;
@@ -58,9 +58,9 @@ void addTask(char *file)
  * 
  * @param pid
 */
-void resumeTask(uint16_t pid)
+void resumeTask(uint8_t pid)
 {
-    for (uint16_t i = 0; i < MAX_TASKS; i++) {
+    for (uint8_t i = 0; i < MAX_TASKS; i++) {
         if (schedulerTable[i].p_id == pid) {
             schedulerTable[i].state = RUNNING;
             Serial.println("[info]\tProcess succesfully resumed!");
@@ -77,9 +77,9 @@ void resumeTask(uint16_t pid)
  * 
  * @param pid
 */
-void suspendTask(uint16_t pid)
+void suspendTask(uint8_t pid)
 {
-    for (uint16_t i = 0; i < MAX_TASKS; i++) {
+    for (uint8_t i = 0; i < MAX_TASKS; i++) {
         if (schedulerTable[i].p_id == pid) {
             schedulerTable[i].state = SUSPENDED;
             Serial.println("[info]\tProcess succesfully suspended!");
@@ -96,9 +96,9 @@ void suspendTask(uint16_t pid)
  * 
  * @param pid
 */
-void removeTask(uint16_t pid)
+void removeTask(uint8_t pid)
 {
-    for (uint16_t i = 0; i < MAX_TASKS; i++) {
+    for (uint8_t i = 0; i < MAX_TASKS; i++) {
         if (schedulerTable[i].p_id == pid) {
             schedulerTable[i].p_id = 0;
             schedulerTable[i].state = TERMINATED;
@@ -134,7 +134,15 @@ void runningTasks()
             Serial.print(" name:  ");
             Serial.print(schedulerTable[i].file);
             Serial.print(" state:  ");
-            Serial.println(schedulerTable[i].state);
+            Serial.print(schedulerTable[i].state);
+            Serial.print(" file address: ");
+            Serial.println(schedulerTable[i].fp);
         }
     }
+}
+
+
+void runTasks()
+{
+    
 }

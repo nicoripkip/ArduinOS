@@ -8,17 +8,21 @@
 #define __TINBES03__ARDUINOS__FILESYSTEM__
 
 
+struct Entry_s
+{
+    char filename[12];
+    char contents[60];
+    size_t size;
+};
+
+
 void initFileSystem();
-void writeFATEntry(char *file, size_t size, char *data);
-int readFATEntry(uint32_t address);
+void writeFATEntry(char *file, size_t size, char *contents);
 char *retrieveFATEntry(char *file);
 uint32_t totalFilesInFAT();
 void allFilesOnFAT();
-
 uint16_t getFileAddress(char *file);
-
 void showFT();
-void jemoeder();
 void eraseFATEntry(char *file);
 void eraseAll();
 

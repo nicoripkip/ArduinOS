@@ -10,9 +10,9 @@
 
 
 static memtable_s memoryTable[MEMORY_TABLE_SIZE];
-static byte stack[STACK_ADDRESS_END];
-static uint16_t occupiedTable[30];
-static uint32_t sp = 0;
+static byte stack[STACK_ADDRESS_END] = { 255 };
+// static uint8_t occupiedTable[10];
+static uint8_t sp = 0;
 
 
 void pushByte(byte b)
@@ -106,7 +106,7 @@ void refreshStack()
  * @param size
  * @param type
 */
-void memAlloc(uint16_t pid, char *name, void *data, size_t size, memtype_e type)
+void memAlloc(uint8_t pid, char *name, void *data, size_t size, memtype_e type)
 {
     void *p;
     if (type == INT) {
@@ -130,16 +130,13 @@ void memAlloc(uint16_t pid, char *name, void *data, size_t size, memtype_e type)
 }
 
 
-
-
-
 /**
  * Function to free memory
  * 
  * @param pid
  * @param name
 */
-void memFree(uint16_t pid, char *name)
+void memFree(uint8_t pid, char *name)
 {
     for (uint16_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
         if (memoryTable[i].p_id == pid && strcmp(memoryTable[i].name, name) == 0 && memoryTable[i].state == OCCUPIED) {
@@ -153,6 +150,27 @@ void memFree(uint16_t pid, char *name)
             }
 
             memoryTable[i].state = FREE;
+        }
+    }
+}
+
+
+/**
+ * 
+ * 
+*/
+byte *memReserve()
+{
+    for (uint8_t i = 0; i < STACK_ADDRESS_END; i++) {
+        if (stack[i] == 255) {
+            uint8_t t = 0;
+            while (stack[i+t] == 255 && t < 11) {
+                t++;
+            }
+
+            if (t >= 10) {
+                return &stack[i];
+            }
         }
     }
 }
