@@ -32,18 +32,18 @@ enum memstate_e
 */
 struct memtable_s 
 {
-    uint16_t        *address;
-    char *          name;
+    byte            *address;
+    char            *name;
     memtype_e       type;
     memstate_e      state;
     uint8_t         p_id;
 };
 
 
-uint16_t pushInt(int x);
-uint16_t pushChar(char x);
-uint16_t pushFloat(float x);
-uint16_t pushString(char *x);
+byte *pushInt(int x);
+byte *pushChar(char x);
+byte *pushFloat(float x);
+byte *pushString(char *x);
 
 int popInt();
 
@@ -53,6 +53,7 @@ void memFree(uint8_t pid, char *name);
 void memWrite(uint16_t address, byte value);
 byte memRead(uint16_t address);
 byte *stackAlloc(size_t size);
+uint8_t readDataRegion(char *buffer, uint16_t address);
 
 
 

@@ -15,9 +15,10 @@ static byte stack[STACK_ADDRESS_END] = { 255 };
 static uint8_t sp = 0;
 
 
-void pushByte(byte b)
+byte *pushByte(byte b)
 {
     stack[sp++] = b;
+    return &stack[sp-1];
 }
 
 
@@ -34,15 +35,17 @@ byte popByte()
  * @param y
  * @return uint16_t
 */
-uint16_t pushInt(int x)
+byte *pushInt(int x)
 {
     if (2 + sp > STACK_ADDRESS_END) {
         Serial.println(F("[error]\tNo space available in memory!"));
         return;
     }
 
-    pushByte(INT);
-    pushByte(x);
+    byte *a = pushByte(INT);
+    pushByte(x); 
+
+    return a;
 }
 
 
@@ -52,7 +55,7 @@ uint16_t pushInt(int x)
  * @param x
  * @return uint16_t
 */
-uint16_t pushChar(char x)
+byte *pushChar(char x)
 {
     if (2 + sp > STACK_ADDRESS_END) {
         Serial.println(F("[error]\tNo space available in memory!"));
@@ -70,7 +73,7 @@ uint16_t pushChar(char x)
  * @param x
  * @return uint16_t
 */
-uint16_t pushFloat(float x)
+byte *pushFloat(float x)
 {
 
 }
@@ -82,7 +85,7 @@ uint16_t pushFloat(float x)
  * @param x
  * @return uint16_t
 */
-uint16_t pushString(char *x)
+byte *pushString(char *x)
 {
     uint16_t l = strlen(x);
 
@@ -115,7 +118,7 @@ void refreshStack()
  * @param size
  * @param type
 */
-void memAlloc(uint8_t pid, char *name, size_t size, memtype_e type, uint16_t address)
+void memAlloc(uint8_t pid, char *name, size_t size, memtype_e type, byte *address)
 {
     for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
         if (memoryTable[i].state == FREE) {
@@ -139,14 +142,14 @@ void memFree(uint8_t pid, char *name)
 {
     for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
         if (memoryTable[i].p_id == pid && strcmp(memoryTable[i].name, name) == 0 && memoryTable[i].state == OCCUPIED) {
-            if (memoryTable[i].type == STRING) {
+            // if (memoryTable[i].type == STRING) {
 
-            } else if (memoryTable[i].type == FLOAT) {
+            // } else if (memoryTable[i].type == FLOAT) {
 
-            } else {
-                stack[memoryTable[i].address] = 0;
-                stack[memoryTable[i].address+1] = 0;
-            }
+            // } else {
+            //     stack[] = 0;
+            //     stack[] = 0;
+            // }
 
             memoryTable[i].state = FREE;
         }

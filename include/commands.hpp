@@ -8,7 +8,7 @@
 #define __TINBES03__ARDUINOS__COMMANDS__
 
 
-#define MAX_COMMANDS    12
+#define MAX_COMMANDS    15
 #define BUFFER_SIZE     12
 
 
@@ -42,6 +42,9 @@ void suspend();
 void resume();
 void kill();
 
+// Commands for memory
+void memshow();
+
 
 static struct s_command command_table[MAX_COMMANDS] = {
     {"help",        &help},
@@ -55,7 +58,8 @@ static struct s_command command_table[MAX_COMMANDS] = {
     {"LIST",        &list},
     {"SUSPEND",     &suspend},
     {"RESUME",      &resume},
-    {"KILL",        &kill}
+    {"KILL",        &kill},
+    {"MEMSHOW",     &memshow}
 };
 
 #endif

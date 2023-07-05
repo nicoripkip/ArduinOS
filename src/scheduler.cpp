@@ -2,6 +2,8 @@
 #include "scheduler.hpp"
 #include "filesystem.hpp"
 #include "memory.hpp"
+#include "instructions.hpp"
+#include <EEPROM.h>
 
 
 #define MAX_TASKS       25
@@ -9,6 +11,32 @@
 
 static struct task_s schedulerTable[MAX_TASKS];
 static uint16_t sp = 1;
+
+
+/**
+ * Function to read a piece of data from memory
+ * 
+ * @param buffer
+ * @param address
+ * @return uint8_t
+*/
+uint8_t readDataRegion(char *buffer, uint16_t address)
+{
+    memset(buffer, 0, sizeof(buffer));
+
+    Serial.print(address);
+
+    uint8_t c = 0;
+    while (EEPROM.read(address) != 32) {
+        Serial.println("Hij komt hier!");
+        char b = EEPROM.read(address);
+        strncat(buffer, &b, 1);
+        address++;
+        c++;
+    }
+
+    return c;
+}
 
 
 /**
@@ -173,7 +201,11 @@ void runTasks()
 {
     for (uint8_t i = 0; i < MAX_TASKS; i++) {
         if (schedulerTable[i].state == RUNNING) {
-            schedulerTable[i].pc++;
+            char b[10];
+            uint8_t r = readDataRegion(b, schedulerTable[i].fp+schedulerTable[i].pc);
+            Serial.println(b);
+            schedulerTable[i].pc+=r+1;
+            execute(atoi(b), &schedulerTable[i]);
         }
     }
 }

@@ -1,10 +1,16 @@
 #include "instructions.hpp"
 #include "instructionset.hpp"
 #include "memory.hpp"
-#include "filesystem.cpp"
+// #include "filesystem.cpp"
+#include "scheduler.hpp"
+#include <EEPROM.h>
 
 
-#define SPATIAL_CHARACTER 20
+#define SPATIAL_CHARACTER 32
+
+
+static char buff[30];
+static byte *s_address;
 
 
 /**
@@ -12,21 +18,29 @@
  * 
  * @param instruction
 */
-void execute(byte instruction, uint16_t address, uint8_t pc)
+void execute(byte instruction, struct task_s *task)
 {
+    Serial.println("Hij komt hier!");
+
     switch (instruction)
     {
-        case CHAR:
+        case CHARR:
             break;
-        case INT:
-
+        case INTT:
+            uint8_t r = readDataRegion(buff, task->fp+task->pc);
+            Serial.println(buff);
+            s_address = pushInt(atoi(buff));
+            task->pc+=r+1;
             break;
-        case STRING:
+        case STRINGG:
             break;
-        case FLOAT:
+        case FLOATT:
             break;
         case SET:
-            memAlloc();
+            r = readDataRegion(buff, task->fp+task->pc);
+            Serial.println(buff);
+            memAlloc(task->p_id, buff, 2, INT, task->stack);
+            task->pc+=r+1;
             break;
         case GET:
 
@@ -152,6 +166,7 @@ void execute(byte instruction, uint16_t address, uint8_t pc)
         case ENDLOOP:
             break;
         case STOP:
+            removeTask(task->p_id);
             break;
         case FORK:
             break;

@@ -4,10 +4,10 @@
 #ifndef __TINBES03__ARDUINOS__INSTRUCTION__SET__
 #define __TINBES03__ARDUINOS__INSTRUCTION__SET__
 
-#define CHAR 1 // 1-byte // plaats op stack (eerst de waarde, dan het type)
-#define INT 2 // 2-byte // plaats op stack (eerst de waarde, dan het type)
-#define STRING 3 // n-byte (zero-terminated) // plaats op stack (eerst de string, dan de lengte (byte), dan het type)
-#define FLOAT 4 // 4-byte // plaats op stack (eerst de waarde, dan het type)
+#define CHARR 1 // 1-byte // plaats op stack (eerst de waarde, dan het type)
+#define INTT 2 // 2-byte // plaats op stack (eerst de waarde, dan het type)
+#define STRINGG 3 // n-byte (zero-terminated) // plaats op stack (eerst de string, dan de lengte (byte), dan het type)
+#define FLOATT 4 // 4-byte // plaats op stack (eerst de waarde, dan het type)
 #define SET 5 // name x // zet in geheugen (name is 1 byte, volgt direct op opcode, niet van stack)
 #define GET 6 // name // haal uit geheugen en plaats op stack
 #define INCREMENT 7 // x
