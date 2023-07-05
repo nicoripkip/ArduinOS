@@ -120,6 +120,8 @@ void refreshStack()
 */
 void memAlloc(uint8_t pid, char *name, size_t size, memtype_e type, byte *address)
 {
+    Serial.println("Executed this");
+
     for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
         if (memoryTable[i].state == FREE) {
             memoryTable[i].p_id = pid;
@@ -202,4 +204,10 @@ void memWrite(uint16_t address, byte value)
 byte memRead(uint16_t address)
 {
     return stack[address];
+}
+
+
+void showStack(byte *address)
+{
+    
 }

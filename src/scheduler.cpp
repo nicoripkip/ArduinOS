@@ -24,12 +24,11 @@ uint8_t readDataRegion(char *buffer, uint16_t address)
 {
     memset(buffer, 0, sizeof(buffer));
 
-    Serial.print(address);
-
     uint8_t c = 0;
-    while (EEPROM.read(address) != 32) {
-        Serial.println("Hij komt hier!");
+    while (EEPROM.read(address) != 32 && EEPROM.read(address) != 255) {
         char b = EEPROM.read(address);
+        Serial.print("Read data: ");
+        Serial.println(b);
         strncat(buffer, &b, 1);
         address++;
         c++;
@@ -203,9 +202,17 @@ void runTasks()
         if (schedulerTable[i].state == RUNNING) {
             char b[10];
             uint8_t r = readDataRegion(b, schedulerTable[i].fp+schedulerTable[i].pc);
-            Serial.println(b);
+            byte t = atoi(b);
             schedulerTable[i].pc+=r+1;
-            execute(atoi(b), &schedulerTable[i]);
+            Serial.print("PC: ");
+            Serial.println(schedulerTable[i].fp+schedulerTable[i].pc);
+            Serial.println(t);
+            r = execute(t, &schedulerTable[i]);
+            schedulerTable[i].pc+=r;
+
+            if (schedulerTable[i].pc >= 15) {
+                schedulerTable[i].state = TERMINATED;
+            }
         }
     }
 }

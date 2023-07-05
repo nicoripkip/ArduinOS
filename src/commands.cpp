@@ -266,3 +266,9 @@ void kill()
 
     removeTask(atoi(command_buffer[1]));
 }
+
+
+void memshow()
+{
+    
+}

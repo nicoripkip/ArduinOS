@@ -55,6 +55,8 @@ byte memRead(uint16_t address);
 byte *stackAlloc(size_t size);
 uint8_t readDataRegion(char *buffer, uint16_t address);
 
+void showStack(byte *address);
+
 
 
 #endif
