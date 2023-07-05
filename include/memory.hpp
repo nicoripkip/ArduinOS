@@ -32,24 +32,26 @@ enum memstate_e
 */
 struct memtable_s 
 {
-    uint32_t        virtaddr;
+    uint16_t        *address;
     char *          name;
     memtype_e       type;
     memstate_e      state;
-    uint8_t        p_id;
+    uint8_t         p_id;
 };
 
 
-void pushInt(int x);
-void pushChar(char x);
-void pushFloat(float x);
-void pushString(char *x);
+uint16_t pushInt(int x);
+uint16_t pushChar(char x);
+uint16_t pushFloat(float x);
+uint16_t pushString(char *x);
 
 int popInt();
 
 
-void memAlloc(uint8_t pid, char *name, void *data, size_t size, memtype_e type);
+void memAlloc(uint8_t pid, char *name, size_t size, memtype_e type, uint16_t address);
 void memFree(uint8_t pid, char *name);
+void memWrite(uint16_t address, byte value);
+byte memRead(uint16_t address);
 byte *stackAlloc(size_t size);
 
 

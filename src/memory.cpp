@@ -32,8 +32,9 @@ byte popByte()
  * 
  * @param x
  * @param y
+ * @return uint16_t
 */
-void pushInt(int x)
+uint16_t pushInt(int x)
 {
     if (2 + sp > STACK_ADDRESS_END) {
         Serial.println(F("[error]\tNo space available in memory!"));
@@ -49,8 +50,9 @@ void pushInt(int x)
  * Function to push a char on the stack
  * 
  * @param x
+ * @return uint16_t
 */
-void pushChar(char x)
+uint16_t pushChar(char x)
 {
     if (2 + sp > STACK_ADDRESS_END) {
         Serial.println(F("[error]\tNo space available in memory!"));
@@ -62,7 +64,13 @@ void pushChar(char x)
 }
 
 
-void pushFloat(float x)
+/**
+ * Function to push a float on the stack
+ * 
+ * @param x
+ * @return uint16_t
+*/
+uint16_t pushFloat(float x)
 {
 
 }
@@ -72,8 +80,9 @@ void pushFloat(float x)
  * Function to push a string on the stack
  * 
  * @param x
+ * @return uint16_t
 */
-void pushString(char *x)
+uint16_t pushString(char *x)
 {
     uint16_t l = strlen(x);
 
@@ -106,25 +115,15 @@ void refreshStack()
  * @param size
  * @param type
 */
-void memAlloc(uint8_t pid, char *name, void *data, size_t size, memtype_e type)
+void memAlloc(uint8_t pid, char *name, size_t size, memtype_e type, uint16_t address)
 {
-    void *p;
-    if (type == INT) {
-        // (int)p = (int)data;
-    } else if (type == CHAR) {
-
-    } else if (type == FLOAT) {
-
-    } else if (type == STRING) {
-
-    }
-
     for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
         if (memoryTable[i].state == FREE) {
             memoryTable[i].p_id = pid;
             memoryTable[i].name = name;
             memoryTable[i].type = type;
             memoryTable[i].state = OCCUPIED;
+            return;
         }
     }
 }
@@ -145,8 +144,8 @@ void memFree(uint8_t pid, char *name)
             } else if (memoryTable[i].type == FLOAT) {
 
             } else {
-                stack[memoryTable[i].virtaddr] = 0;
-                stack[memoryTable[i].virtaddr+1] = 0;
+                stack[memoryTable[i].address] = 0;
+                stack[memoryTable[i].address+1] = 0;
             }
 
             memoryTable[i].state = FREE;
@@ -161,7 +160,7 @@ void memFree(uint8_t pid, char *name)
 */
 byte *stackAlloc(size_t size)
 {
-    for (uint8_t i = STACK_ADDRESS_START; i < STACK_ADDRESS_END; i++) {
+    for (uint16_t i = STACK_ADDRESS_START; i < STACK_ADDRESS_END; i++) {
         if (stack[i] == 255) {
             uint8_t j;
             for (j = i; i < i + size; i++) if (stack[j] != 255) break;
@@ -176,4 +175,28 @@ byte *stackAlloc(size_t size)
             }
         }
     }
+}
+
+
+/**
+ * Function to write a value to memory
+ * 
+ * @param address
+ * @param value
+*/
+void memWrite(uint16_t address, byte value)
+{
+    stack[address] = value;
+}
+
+
+/**
+ * Function to read a value from the memory chunk
+ * 
+ * @param addressd
+ * @returns byte
+*/
+byte memRead(uint16_t address)
+{
+    return stack[address];
 }

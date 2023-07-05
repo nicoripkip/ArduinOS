@@ -1,5 +1,10 @@
 #include "instructions.hpp"
 #include "instructionset.hpp"
+#include "memory.hpp"
+#include "filesystem.cpp"
+
+
+#define SPATIAL_CHARACTER 20
 
 
 /**
@@ -7,21 +12,24 @@
  * 
  * @param instruction
 */
-void execute(byte instruction, byte x, byte y)
+void execute(byte instruction, uint16_t address, uint8_t pc)
 {
     switch (instruction)
     {
         case CHAR:
             break;
         case INT:
+
             break;
         case STRING:
             break;
         case FLOAT:
             break;
         case SET:
+            memAlloc();
             break;
         case GET:
+
             break;
         case INCREMENT:
             break;

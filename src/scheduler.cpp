@@ -8,7 +8,7 @@
 
 
 static struct task_s schedulerTable[MAX_TASKS];
-static uint16_t sp = 0;
+static uint16_t sp = 1;
 
 
 /**
@@ -32,6 +32,11 @@ void initScheduler()
 */
 void addTask(char *file)
 {
+    if (getFileAddress(file) == 0) {
+        Serial.println(F("[error]\tFile doesn't exist!"));
+        return;
+    }
+
     for (uint8_t i =0; i < MAX_TASKS; i++) {
         if (schedulerTable[i].state == TERMINATED && schedulerTable[i].p_id == 0) {
             schedulerTable[i].p_id = sp;
@@ -40,7 +45,10 @@ void addTask(char *file)
             schedulerTable[i].state = RUNNING;
             schedulerTable[i].pc = 0;
             schedulerTable[i].sp = 0;
-            schedulerTable[i].stack = stackAlloc(30);
+            schedulerTable[i].stack = stackAlloc(32);
+            // for (uint8_t j = 0; j < 32; j++) {
+            //     memWrite(, 0);
+            // }
 
             sp++;
 
@@ -133,13 +141,24 @@ void runningTasks()
         if (schedulerTable[i].state == RUNNING) {
             Serial.print(F("process id: "));
             Serial.print(schedulerTable[i].p_id);
-            Serial.print(F(" name:  "));
+            Serial.print(F(" | name: "));
             Serial.print(schedulerTable[i].file);
-            Serial.print(F(" state:  "));
-            Serial.print(schedulerTable[i].state);
-            Serial.print(F(" file address: "));
+            Serial.print(F(" | state: "));
+            switch (schedulerTable[i].state)
+            {
+                case RUNNING:
+                    Serial.print(F("RUNNING"));
+                    break;
+                case SUSPENDED:
+                    Serial.print(F("SUSPENDED"));
+                    break;
+                case TERMINATED:
+                    Serial.print(F("TERMINATED"));
+                    break;
+            }
+            Serial.print(F(" | file address: "));
             Serial.print(schedulerTable[i].fp);
-            Serial.print(F(" stack pointer: "));
+            Serial.print(F(" | stack pointer: "));
             Serial.println((uint8_t)schedulerTable[i].stack);
         }
     }
@@ -154,7 +173,7 @@ void runTasks()
 {
     for (uint8_t i = 0; i < MAX_TASKS; i++) {
         if (schedulerTable[i].state == RUNNING) {
-            schedulerTable[i].fp++;
+            schedulerTable[i].pc++;
         }
     }
 }

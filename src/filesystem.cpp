@@ -199,7 +199,12 @@ void eraseAll()
 */
 void allFilesOnFAT()
 {
-
+    for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
+        if (strcmp(FAT[i].filename, "")) {
+            Serial.print(F(" -- "));
+            Serial.println(FAT[i].filename);
+        }
+    }
 }
 
 
@@ -211,5 +216,11 @@ void allFilesOnFAT()
 */
 uint16_t getFileAddress(char *file)
 {
+    for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
+        if (strcmp(FAT[i].filename, file) == 0) {
+            return FAT[i].contents;
+        }
+    }
+
     return 0;
 }
