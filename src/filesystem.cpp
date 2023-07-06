@@ -167,6 +167,29 @@ void eraseFATEntry(char *file)
         return;
     }
 
+    uint8_t i;
+    for (i = 0; i < MAX_FAT_SIZE; i++) {
+        if (strcmp(file, FAT[i].filename) == 0) {
+            Serial.println(F("[info]\tFound file on FAT"));
+            Serial.println(FAT[i].contents);
+
+            for (uint16_t j = FAT[i].contents; j < FAT[i].contents + FAT[i].size; j++) {
+                EEPROM.write(j, 255);
+            }
+
+            break;
+        }
+    }
+
+    memcpy(FAT[i].filename, "", 1);
+    FAT[i].size = 0;
+    FAT[i].contents = 0;
+
+    EEPROM.write(0, (--totalFiles));
+    EEPROM.put(2, FAT);
+
+    Serial.println(F("[error]\tFile does not exist on filesystem!"));
+    return;
 }
 
 
