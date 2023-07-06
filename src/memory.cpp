@@ -57,6 +57,8 @@ byte *pushInt(byte *address, uint8_t *sp, int x)
         return;
     }
 
+    Serial.println(*sp);
+
     byte *a = pushByte(address, sp, INT);
     pushByte(address, sp, x);
 

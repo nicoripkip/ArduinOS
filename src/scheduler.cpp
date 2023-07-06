@@ -10,7 +10,7 @@
 
 
 static struct task_s schedulerTable[MAX_TASKS];
-static uint16_t sp = 1;
+static uint16_t process_counter = 1;
 
 
 /**
@@ -66,7 +66,7 @@ void addTask(char *file)
 
     for (uint8_t i =0; i < MAX_TASKS; i++) {
         if (schedulerTable[i].state == TERMINATED && schedulerTable[i].p_id == 0) {
-            schedulerTable[i].p_id = sp;
+            schedulerTable[i].p_id = process_counter;
             memcpy(schedulerTable[i].file, file, 12);
             schedulerTable[i].fp = getFileAddress(file);
             schedulerTable[i].state = RUNNING;
@@ -75,10 +75,10 @@ void addTask(char *file)
             schedulerTable[i].stack = stackAlloc(32);
             memset(schedulerTable[i].stack, 0, 32);
 
-            sp++;
+            process_counter++;
 
             Serial.print(F("[info]\tProcess: "));
-            Serial.print(sp);
+            Serial.print(process_counter);
             Serial.println(F(" succesfully created!"));
 
             return;
@@ -144,7 +144,7 @@ void removeTask(uint8_t pid)
 
             schedulerTable[i].stack = nullptr;
 
-            sp--;
+            process_counter--;
             Serial.println(F("[info]\tProcess successfully terminated!"));
             return;
         }
@@ -203,9 +203,9 @@ void runTasks()
             r = execute(t, &schedulerTable[i]);
             schedulerTable[i].pc+=r;
 
-            if (schedulerTable[i].pc >= 15) {
-                removeTask(schedulerTable[i].p_id);
-            }
+            // if (schedulerTable[i].pc >= 15) {
+            //     removeTask(schedulerTable[i].p_id);
+            // }
         }
     }
 }

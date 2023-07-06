@@ -29,8 +29,9 @@ uint8_t execute(byte instruction, struct task_s *task)
             r = readDataRegion(buff, task->fp+task->pc);
             // Serial.print("Data: ");
             // Serial.println(buff);
-            // Serial.println(task->sp);
-            s_address = pushInt(task->stack, task->sp, atoi(buff));
+            Serial.print(F("Stack pointer: "));
+            Serial.println(task->sp);
+            s_address = pushInt(task->stack, &task->sp, atoi(buff));
             // Serial.print("Variable address: ");
             // Serial.println((uint16_t)(s_address+task->pc));
             showStack(task->stack);
@@ -43,7 +44,7 @@ uint8_t execute(byte instruction, struct task_s *task)
             r = readDataRegion(buff, task->fp+task->pc);
             Serial.print(F("Data: "));
             Serial.println(buff);
-            memAlloc(task->p_id, buff, 2, INT, s_address);
+            // memAlloc(task->p_id, buff, 2, INT, s_address);
             break;
         case GET:
 
@@ -62,86 +63,90 @@ uint8_t execute(byte instruction, struct task_s *task)
             break;
         case MODULUS:
             break;
-        // case UNARYMINUS:
-        //     break;
-        // case EQUALS:
-        //     break;
-        // case NOTEQUALS:
-        //     break;
-        // case LESSTHAN:
-        //     break;
-        // case LESSTHANOREQUALS:
-        //     break;
-        // case GREATERTHAN:
-        //     break;
-        // case GREATERTHANOREQUALS:
-        //     break;
-        // case LOGICALAND:
-        //     break;
-        // case LOGICALOR:
-        //     break;
-        // case LOGICALXOR:
-        //     break;
-        // case LOGICALNOT:
-        //     break;
-        // case BITWISEAND:
-        //     break;
-        // case BITWISEOR:
-        //     break;
-        // case BITWISEXOR:
-        //     break;
-        // case BITWISENOT:
-        //     break;
-        // case TOCHAR:
-        //     break;
-        // case TOINT:
-        //     break;
-        // case TOFLOAT:
-        //     break;
-        // case ROUND:
-        //     break;
-        // case FLOOR:
-        //     break;
-        // case CEIL:
-        //     break;
-        // case MIN:
-        //     break;
-        // case MAX:
-        //     break;
-        // case ABS:
-        //     break;
-        // case CONSTRAIN:
-        //     break;
-        // case MAP:
-        //     break;
-        // case POW:
-        //     break;
-        // case SQ:
-        //     break;
-        // case SQRT:
-        //     break;
-        // case DELAY:
-        //     break;
-        // case DELAYUNTIL:
-        //     break;
-        // case MILLIS:
-        //     break;
-        // case PINMODE:
-        //     break;
-        // case ANALOGREAD:
-        //     break;
-        // case ANALOGWRITE:
-        //     break;
-        // case DIGITALREAD:
-        //     break;
-        // case DIGITALWRITE:
-        //     break;
-        // case PRINT:
-        //     break;
-        // case PRINTLN:
-        //     break;
-        // case OPEN:
-        //    break;
+        case UNARYMINUS:
+            break;
+        case EQUALS:
+            break;
+        case NOTEQUALS:
+            break;
+        case LESSTHAN:
+            break;
+        case LESSTHANOREQUALS:
+            break;
+        case GREATERTHAN:
+            break;
+        case GREATERTHANOREQUALS:
+            break;
+        case LOGICALAND:
+            break;
+        case LOGICALOR:
+            break;
+        case LOGICALXOR:
+            break;
+        case LOGICALNOT:
+            break;
+        case BITWISEAND:
+            break;
+        case BITWISEOR:
+            break;
+        case BITWISEXOR:
+            break;
+        case BITWISENOT:
+            break;
+        case TOCHAR:
+            break;
+        case TOINT:
+            break;
+        case TOFLOAT:
+            break;
+        case ROUND:
+            break;
+        case FLOOR:
+            break;
+        case CEIL:
+            break;
+        case MIN:
+            break;
+        case MAX:
+            break;
+        case ABS:
+            break;
+        case CONSTRAIN:
+            break;
+        case MAP:
+            break;
+        case POW:
+            break;
+        case SQ:
+            break;
+        case SQRT:
+            break;
+        case DELAY:
+            break;
+        case DELAYUNTIL:
+            break;
+        case MILLIS:
+            break;
+        case PINMODE:
+            break;
+        case ANALOGREAD:
+            break;
+        case ANALOGWRITE:
+            break;
+        case DIGITALREAD:
+            break;
+        case DIGITALWRITE:
+            break;
+        case PRINT:
+            r = readDataRegion(buff, task->fp+task->pc);
+            Serial.print(buff);
+            break;
+        case PRINTLN:
+            r = readDataRegion(buff, task->fp+task->pc);
+            Serial.println(buff);
+            break;
+        case OPEN:
+           break;
         case CLOSE:
             break;
         case WRITE:
@@ -182,6 +187,5 @@ uint8_t execute(byte instruction, struct task_s *task)
             return 0;
     }
 
-    free(task);
     return r+1;
 }
