@@ -43,7 +43,7 @@ void readInput()
             bp++;
 
             if (bp > 4) {
-                Serial.println("[error]\tToo many arguments supported by the buffer!");
+                Serial.println(F("[error]\tToo many arguments supported by the buffer!"));
                 bp = 0;
                 clearBuffer();
                 return;
@@ -56,7 +56,7 @@ void readInput()
                 }
 
                 if (i == MAX_COMMANDS-1) {
-                    Serial.println("[error]\tCommand does not exist!");
+                    Serial.println(F("[error]\tCommand does not exist!"));
                 }
             }
 
@@ -217,7 +217,7 @@ void erase()
 
 
 /**
- * Function
+ * Function start a new task
  * 
 */
 void run()
@@ -232,6 +232,10 @@ void run()
 }
 
 
+/**
+ * Command to list all the processes in the system
+ * 
+*/
 void list()
 {
     Serial.println(F("-------- Processes: --------"));
@@ -239,21 +243,35 @@ void list()
 }
 
 
+/**
+ * Command to suspend a process from running
+ * 
+*/
 void suspend()
 {
     if (strcmp(command_buffer[1], "") == 0) {
         Serial.println(F("[error]\tSUSPEND requires a parameter!"));
         return;
     }
+
+    suspendTask(atoi(command_buffer[1]));
+    Serial.println(F("[info]\tSuccesfully suspended task!"));
 }
 
 
+/**
+ * Command to resume a task from suspension
+ * 
+*/
 void resume()
 {
     if (strcmp(command_buffer[1], "") == 0) {
         Serial.println(F("[error]\tRESUME requires a parameter!"));
         return;
     }
+
+    resumeTask(atoi(command_buffer[1]));
+    Serial.println(F("[info]\tSuccesfully resumed task!"));
 }
 
 
@@ -270,5 +288,5 @@ void kill()
 
 void memshow()
 {
-    
+    showMemTable();
 }

@@ -21,8 +21,8 @@ enum memtype_e
 */
 enum memstate_e
 {
-    OCCUPIED,
-    FREE
+    FREE,
+    OCCUPIED
 };
 
 
@@ -33,29 +33,28 @@ enum memstate_e
 struct memtable_s 
 {
     byte            *address;
-    char            *name;
+    char            name[5];
     memtype_e       type;
     memstate_e      state;
     uint8_t         p_id;
 };
 
 
-byte *pushInt(int x);
-byte *pushChar(char x);
-byte *pushFloat(float x);
-byte *pushString(char *x);
+byte *pushInt(byte *address, uint8_t *sp, int x);
+byte *pushChar(byte *address, uint8_t *sp, char x);
+byte *pushFloat(byte *address, uint8_t *sp, float x);
+byte *pushString(byte *address, uint8_t *sp, char *x);
 
 int popInt();
 
 
-void memAlloc(uint8_t pid, char *name, size_t size, memtype_e type, uint16_t address);
+void memAlloc(uint8_t pid, char *name, size_t size, memtype_e type, byte *address);
 void memFree(uint8_t pid, char *name);
-void memWrite(uint16_t address, byte value);
-byte memRead(uint16_t address);
 byte *stackAlloc(size_t size);
 uint8_t readDataRegion(char *buffer, uint16_t address);
 
 void showStack(byte *address);
+void showMemTable();
 
 
 

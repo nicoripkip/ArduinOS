@@ -14,16 +14,12 @@ static byte *s_address;
 
 
 /**
- * 
+ * Function to execute an instruction in the os
  * 
  * @param instruction
 */
 uint8_t execute(byte instruction, struct task_s *task)
 {
-
-    Serial.print("Instruction: ");
-    Serial.println(instruction);
-
     uint8_t r = 0;
     switch (instruction)
     {
@@ -31,20 +27,23 @@ uint8_t execute(byte instruction, struct task_s *task)
             break;
         case INTT:
             r = readDataRegion(buff, task->fp+task->pc);
-            Serial.print("Data: ");
-            Serial.println(buff);
-            s_address = pushInt(atoi(buff));
+            // Serial.print("Data: ");
+            // Serial.println(buff);
+            // Serial.println(task->sp);
+            s_address = pushInt(task->stack, task->sp, atoi(buff));
+            // Serial.print("Variable address: ");
+            // Serial.println((uint16_t)(s_address+task->pc));
+            showStack(task->stack);
             break;
         case STRINGG:
             break;
         case FLOATT:
             break;
         case SET:
-            Serial.println("Yo man");
             r = readDataRegion(buff, task->fp+task->pc);
-            Serial.print("Data: ");
+            Serial.print(F("Data: "));
             Serial.println(buff);
-            // memAlloc(task->p_id, buff, 2, INT, task->stack);
+            memAlloc(task->p_id, buff, 2, INT, s_address);
             break;
         case GET:
 
@@ -170,6 +169,7 @@ uint8_t execute(byte instruction, struct task_s *task)
         case ENDLOOP:
             break;
         case STOP:
+            Serial.println(F("Execute stop"));
             removeTask(task->p_id);
             return 0;
         case FORK:

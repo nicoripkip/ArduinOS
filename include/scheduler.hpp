@@ -23,7 +23,7 @@ struct task_s
     char file[12];
     uint16_t fp;
     uint16_t pc;
-    uint16_t sp;
+    uint8_t sp;
     byte *stack;
 };
 

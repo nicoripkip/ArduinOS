@@ -27,7 +27,7 @@ uint8_t readDataRegion(char *buffer, uint16_t address)
     uint8_t c = 0;
     while (EEPROM.read(address) != 32 && EEPROM.read(address) != 255) {
         char b = EEPROM.read(address);
-        Serial.print("Read data: ");
+        Serial.print(F("Read data: "));
         Serial.println(b);
         strncat(buffer, &b, 1);
         address++;
@@ -73,9 +73,7 @@ void addTask(char *file)
             schedulerTable[i].pc = 0;
             schedulerTable[i].sp = 0;
             schedulerTable[i].stack = stackAlloc(32);
-            // for (uint8_t j = 0; j < 32; j++) {
-            //     memWrite(, 0);
-            // }
+            memset(schedulerTable[i].stack, 0, 32);
 
             sp++;
 
@@ -138,7 +136,7 @@ void removeTask(uint8_t pid)
         if (schedulerTable[i].p_id == pid) {
             schedulerTable[i].p_id = 0;
             schedulerTable[i].state = TERMINATED;
-            // memset(schedulerTable[i].file, 0, 12);
+            memset(schedulerTable[i].file, 0, 12);
 
             for (uint16_t j = 0; j < 10; j++) {
                 schedulerTable[i].stack[j] = 0;
@@ -165,29 +163,27 @@ void runningTasks()
 {
     for (uint16_t i = 0; i < MAX_TASKS; i++)
     {  
-        if (schedulerTable[i].state == RUNNING) {
-            Serial.print(F("process id: "));
-            Serial.print(schedulerTable[i].p_id);
-            Serial.print(F(" | name: "));
-            Serial.print(schedulerTable[i].file);
-            Serial.print(F(" | state: "));
-            switch (schedulerTable[i].state)
-            {
-                case RUNNING:
-                    Serial.print(F("RUNNING"));
-                    break;
-                case SUSPENDED:
-                    Serial.print(F("SUSPENDED"));
-                    break;
-                case TERMINATED:
-                    Serial.print(F("TERMINATED"));
-                    break;
-            }
-            Serial.print(F(" | file address: "));
-            Serial.print(schedulerTable[i].fp);
-            Serial.print(F(" | stack pointer: "));
-            Serial.println((uint8_t)schedulerTable[i].stack);
+        // if (schedulerTable[i].state == RUNNING) {
+        Serial.print(F("process id: "));
+        Serial.print(schedulerTable[i].p_id);
+        Serial.print(F(" | name: "));
+        Serial.print(schedulerTable[i].file);
+        Serial.print(F(" | state: "));
+        switch (schedulerTable[i].state)
+        {
+            case RUNNING:
+                Serial.print(F("RUNNING"));
+                break;
+            case SUSPENDED:
+                Serial.print(F("SUSPENDED"));
+                break;
+            case TERMINATED:
+                Serial.print(F("TERMINATED"));
+                break;
         }
+        Serial.print(F(" | file address: "));
+        Serial.print(schedulerTable[i].fp);
+        // }
     }
 }
 
@@ -204,14 +200,11 @@ void runTasks()
             uint8_t r = readDataRegion(b, schedulerTable[i].fp+schedulerTable[i].pc);
             byte t = atoi(b);
             schedulerTable[i].pc+=r+1;
-            Serial.print("PC: ");
-            Serial.println(schedulerTable[i].fp+schedulerTable[i].pc);
-            Serial.println(t);
             r = execute(t, &schedulerTable[i]);
             schedulerTable[i].pc+=r;
 
             if (schedulerTable[i].pc >= 15) {
-                schedulerTable[i].state = TERMINATED;
+                removeTask(schedulerTable[i].p_id);
             }
         }
     }
