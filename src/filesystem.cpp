@@ -194,7 +194,7 @@ void eraseFATEntry(char *file)
 
 
 /**
- * 
+ * Function to erase all the data on the FAT
  * 
 */
 void eraseAll()

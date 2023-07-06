@@ -16,6 +16,7 @@ void setup()
   Serial.begin(MONITOR_SPEED);
 
   initFileSystem();
+  initMemory();
   initScheduler();
 }
 

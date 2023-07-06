@@ -10,7 +10,19 @@
 
 
 static memtable_s memoryTable[MEMORY_TABLE_SIZE];
-static byte stack[STACK_ADDRESS_END] = { 254 };
+static byte stack[STACK_ADDRESS_END];
+
+
+/**
+ * Function to setup memory
+ * 
+*/
+void initMemory()
+{
+    for (uint16_t i = 0; i < STACK_ADDRESS_END; i++) {
+        stack[i] = 254;
+    }
+}
 
 
 /**
@@ -21,11 +33,10 @@ static byte stack[STACK_ADDRESS_END] = { 254 };
  * @param b
  * @return byte
 */
-byte *pushByte(byte *address, uint8_t *sp, byte b)
+byte *pushByte(byte *address, uint8_t &sp, byte b)
 {
-    Serial.println(*sp);
-    address[*sp++] = b;
-
+    Serial.println(sp);
+    address[sp++] = b;
     return address;
 }
 
@@ -37,9 +48,9 @@ byte *pushByte(byte *address, uint8_t *sp, byte b)
  * @param sp
  * @return byte
 */
-byte popByte(byte *address, uint8_t *sp)
+byte popByte(byte *address, uint8_t &sp)
 {
-    return address[*--sp];
+    return address[--sp];
 }
 
 
@@ -50,14 +61,14 @@ byte popByte(byte *address, uint8_t *sp)
  * @param y
  * @return uint16_t
 */
-byte *pushInt(byte *address, uint8_t *sp, int x)
+byte *pushInt(byte *address, uint8_t &sp, int x)
 {
-    if (2 + *sp > 32) {
+    if (2 + sp > 32) {
         Serial.println(F("[error]\tNo space available in memory!"));
         return;
     }
 
-    Serial.println(*sp);
+    Serial.println(sp);
 
     byte *a = pushByte(address, sp, INT);
     pushByte(address, sp, x);
@@ -72,9 +83,9 @@ byte *pushInt(byte *address, uint8_t *sp, int x)
  * @param x
  * @return uint16_t
 */
-byte *pushChar(byte *address, uint8_t *sp, char x)
+byte *pushChar(byte *address, uint8_t &sp, char x)
 {
-    if (2 + *sp > 32) {
+    if (2 + sp > 32) {
         Serial.println(F("[error]\tNo space available in memory!"));
         return;
     }
@@ -90,7 +101,7 @@ byte *pushChar(byte *address, uint8_t *sp, char x)
  * @param x
  * @return uint16_t
 */
-byte *pushFloat(byte *address, uint8_t *sp, float x)
+byte *pushFloat(byte *address, uint8_t &sp, float x)
 {
 
 }
@@ -102,11 +113,11 @@ byte *pushFloat(byte *address, uint8_t *sp, float x)
  * @param x
  * @return uint16_t
 */
-byte *pushString(byte *address, uint8_t *sp, char *x)
+byte *pushString(byte *address, uint8_t &sp, char *x)
 {
     uint16_t l = strlen(x);
 
-    if (3 + l + *sp > 32) {
+    if (3 + l + sp > 32) {
         Serial.println(F("[error]\tNo space available in memory!"));
         return;
     }
@@ -165,8 +176,10 @@ void memFree(uint8_t pid, char *name)
 
 
 /**
+ * Function to reserve a bit of memory on the public stack
  * 
- * 
+ * @param size
+ * @return byte
 */
 byte *stackAlloc(size_t size)
 {    
@@ -207,7 +220,7 @@ void showStack(byte *address)
 
 
 /**
- * 
+ * Function to show the contents of the memory table
  * 
 */
 void showMemTable()

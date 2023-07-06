@@ -23,11 +23,6 @@ void clearBuffer()
 }
 
 
-bool isNullTerminated(const char* str) {
-  return (str[strlen(str)] == '\0');
-}
-
-
 /**
  * Function to read the input from the serial monitor
  * 
@@ -107,7 +102,7 @@ void print(String *arg, int argCount)
 
 
 /**
- * 
+ * Command to show information of the device
  * 
 */
 void neofetch()
@@ -275,6 +270,10 @@ void resume()
 }
 
 
+/**
+ * Command to terminate a process
+ * 
+*/
 void kill()
 {
     if (strcmp(command_buffer[1], "") == 0) {
@@ -286,6 +285,10 @@ void kill()
 }
 
 
+/**
+ * Command to show the entire memory table
+ * 
+*/
 void memshow()
 {
     showMemTable();

@@ -40,12 +40,17 @@ struct memtable_s
 };
 
 
-byte *pushInt(byte *address, uint8_t *sp, int x);
-byte *pushChar(byte *address, uint8_t *sp, char x);
-byte *pushFloat(byte *address, uint8_t *sp, float x);
-byte *pushString(byte *address, uint8_t *sp, char *x);
+void initMemory();
+
+byte *pushInt(byte *address, uint8_t &sp, int x);
+byte *pushChar(byte *address, uint8_t &sp, char x);
+byte *pushFloat(byte *address, uint8_t &sp, float x);
+byte *pushString(byte *address, uint8_t &sp, char *x);
 
 int popInt();
+char popChar();
+float popFloat();
+char *popString();
 
 
 void memAlloc(uint8_t pid, char *name, size_t size, memtype_e type, byte *address);

@@ -31,7 +31,7 @@ uint8_t execute(byte instruction, struct task_s *task)
             // Serial.println(buff);
             Serial.print(F("Stack pointer: "));
             Serial.println(task->sp);
-            s_address = pushInt(task->stack, &task->sp, atoi(buff));
+            s_address = pushInt(task->stack, task->sp, atoi(buff));
             // Serial.print("Variable address: ");
             // Serial.println((uint16_t)(s_address+task->pc));
             showStack(task->stack);
@@ -42,9 +42,11 @@ uint8_t execute(byte instruction, struct task_s *task)
             break;
         case SET:
             r = readDataRegion(buff, task->fp+task->pc);
+            Serial.print(F("Stack pointer: "));
+            Serial.println(task->sp);
             Serial.print(F("Data: "));
             Serial.println(buff);
-            // memAlloc(task->p_id, buff, 2, INT, s_address);
+            memAlloc(task->p_id, buff, 2, INT, s_address);
             break;
         case GET:
 

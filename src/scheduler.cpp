@@ -74,6 +74,7 @@ void addTask(char *file)
             schedulerTable[i].sp = 0;
             schedulerTable[i].stack = stackAlloc(32);
             memset(schedulerTable[i].stack, 0, 32);
+            Serial.println(schedulerTable[i].stack[0]);
 
             process_counter++;
 
