@@ -247,3 +247,21 @@ uint16_t getFileAddress(char *file)
 
     return 0;
 }
+
+
+/**
+ * Show the freespace on the FAT
+ * 
+*/
+uint16_t showFreeSpace()
+{
+    uint16_t c = 0;
+
+    for (uint16_t i = 0; i < MAX_FAT_SIZE; i++) {
+        if (FAT[i].size != 0) {
+            c+= FAT[i].size;
+        }
+    }
+
+    return EEPROM.length() - 280 - c;
+}

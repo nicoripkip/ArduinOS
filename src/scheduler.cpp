@@ -184,6 +184,8 @@ void runningTasks()
         }
         Serial.print(F(" | file address: "));
         Serial.print(schedulerTable[i].fp);
+        Serial.print(F(" | stack address: "));
+        Serial.println((uint16_t)schedulerTable[i].stack);
         // }
     }
 }

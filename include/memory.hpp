@@ -5,6 +5,10 @@
 #define __TINBES03__ARDUINOS__MEMORY__
 
 
+/**
+ * Enum for the datatypes of the variables
+ * 
+*/
 enum memtype_e
 {
     VOID,
@@ -16,7 +20,7 @@ enum memtype_e
 
 
 /**
- * 
+ * Enum for the state of the variables
  * 
 */
 enum memstate_e
@@ -47,13 +51,15 @@ byte *pushChar(byte *address, uint8_t &sp, char x);
 byte *pushFloat(byte *address, uint8_t &sp, float x);
 byte *pushString(byte *address, uint8_t &sp, char *x);
 
-int popInt();
-char popChar();
-float popFloat();
-char *popString();
+int popInt(byte *address, uint8_t &sp);
+char popChar(byte *address, uint8_t &sp);
+float popFloat(byte *address, uint8_t &sp);
+char *popString(byte *address, uint8_t &sp);
 
 
 void memAlloc(uint8_t pid, char *name, size_t size, memtype_e type, byte *address);
+byte *memRead(uint8_t pid, char *name);
+memtype_e memSearch(uint8_t pid, char *name);
 void memFree(uint8_t pid, char *name);
 byte *stackAlloc(size_t size);
 uint8_t readDataRegion(char *buffer, uint16_t address);

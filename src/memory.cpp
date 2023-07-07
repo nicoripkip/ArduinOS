@@ -132,6 +132,47 @@ byte *pushString(byte *address, uint8_t &sp, char *x)
 
 
 /**
+ * Function to pop an integer from the stack
+ * 
+ * @param address
+*/
+int popInt(byte *address, uint8_t &sp)
+{
+    byte r = popByte(address, sp);
+    popByte(address, sp);
+
+    return (int)r;
+}
+
+
+/**
+ * Function to pop a char from the stack
+ * 
+ * @param address
+ * @param sp
+*/
+char popChar(byte *address, uint8_t &sp)
+{
+    byte r = popByte(address, sp);
+    popByte(address, sp);
+
+    return (char)r;
+}
+
+
+float popFloat(byte *address, uint8_t &sp)
+{
+
+}
+
+
+char *popString(byte *address, uint8_t &sp)
+{
+
+}
+
+
+/**
  * Function to allocate the variable in memory
  * 
  * @param pid
@@ -142,6 +183,9 @@ byte *pushString(byte *address, uint8_t &sp, char *x)
 */
 void memAlloc(uint8_t pid, char *name, size_t size, memtype_e type, byte *address)
 {
+    Serial.print(F("Process id in ma: "));
+    Serial.println(pid);
+
     for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
         if (memoryTable[i].state == FREE) {
             memoryTable[i].p_id = pid;
@@ -150,6 +194,36 @@ void memAlloc(uint8_t pid, char *name, size_t size, memtype_e type, byte *addres
             memoryTable[i].state = OCCUPIED;
             memoryTable[i].address = address;
             return;
+        }
+    }
+}
+
+
+/**
+ * Function to find the value from the memory table
+ * 
+ * @param pid
+ * @param name
+*/
+byte *memRead(uint8_t pid, char *name)
+{
+    for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
+        if (memoryTable[i].p_id == pid && strcmp(memoryTable[i].name, name) == 0) {
+            return memoryTable[i].address;
+        }
+    }
+}
+
+
+/**
+ * 
+ * 
+*/
+memtype_e memSearch(uint8_t pid, char *name)
+{
+    for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
+        if (memoryTable[i].p_id == pid && strcmp(memoryTable[i].name, name) == 0) {
+            return memoryTable[i].type;
         }
     }
 }

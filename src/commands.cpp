@@ -130,7 +130,10 @@ void files()
 
 void freespace()
 {
-    showFT();
+    uint16_t t = showFreeSpace();
+    Serial.print(F("[info]\tAvailable space: "));
+    Serial.print(t);
+    Serial.println(F("/1024"));
 }
 
 

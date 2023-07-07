@@ -11,6 +11,7 @@
 
 static char buff[10];
 static byte *s_address;
+static memtype_e s_type;
 
 
 /**
@@ -27,13 +28,10 @@ uint8_t execute(byte instruction, struct task_s *task)
             break;
         case INTT:
             r = readDataRegion(buff, task->fp+task->pc);
-            // Serial.print("Data: ");
-            // Serial.println(buff);
             Serial.print(F("Stack pointer: "));
             Serial.println(task->sp);
             s_address = pushInt(task->stack, task->sp, atoi(buff));
-            // Serial.print("Variable address: ");
-            // Serial.println((uint16_t)(s_address+task->pc));
+            s_type = INT;
             showStack(task->stack);
             break;
         case STRINGG:
@@ -42,14 +40,32 @@ uint8_t execute(byte instruction, struct task_s *task)
             break;
         case SET:
             r = readDataRegion(buff, task->fp+task->pc);
-            Serial.print(F("Stack pointer: "));
-            Serial.println(task->sp);
-            Serial.print(F("Data: "));
-            Serial.println(buff);
-            memAlloc(task->p_id, buff, 2, INT, s_address);
+            // Serial.print(F("Process id: "));
+            // Serial.println(task->p_id);
+            memAlloc(task->p_id, buff, 2, s_type, s_address);
             break;
         case GET:
+            r = readDataRegion(buff, task->fp+task->pc);
+            memtype_e v_type = memSearch(task->p_id, buff);
 
+            Serial.print(F("Variable type: "));
+            Serial.println(v_type);
+
+            switch (v_type) 
+            {
+                case INT:
+                    int result = popInt(task->stack, task->sp);
+                    break;
+                case CHAR:
+
+                    break;
+                case FLOAT:
+
+                    break;
+                case STRING:
+
+                    break;
+            }
             break;
         case INCREMENT:
             break;
@@ -177,7 +193,7 @@ uint8_t execute(byte instruction, struct task_s *task)
             break;
         case STOP:
             Serial.println(F("Execute stop"));
-            removeTask(task->p_id);
+            suspendTask(task->p_id);
             return 0;
         case FORK:
             break;
