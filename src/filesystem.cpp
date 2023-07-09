@@ -74,10 +74,12 @@ void writeFATEntry(char *file, size_t size, char *contents)
         FAT[totalFiles].contents = i;
         FAT[totalFiles].size = size;
 
-        for (uint16_t j = i; j < i + size; j++) {
+        uint16_t j;
+        for (j = i; j < i + size; j++) {
             Serial.println(contents[j-i]);
             EEPROM.write(j, (int)contents[j-i]);
         }
+        EEPROM.write(j+1, 32);
 
         EEPROM.put(2, FAT);
         EEPROM.write(0, ++totalFiles);
@@ -173,9 +175,11 @@ void eraseFATEntry(char *file)
             Serial.println(F("[info]\tFound file on FAT"));
             Serial.println(FAT[i].contents);
 
-            for (uint16_t j = FAT[i].contents; j < FAT[i].contents + FAT[i].size; j++) {
+            uint16_t j;
+            for (j = FAT[i].contents; j < FAT[i].contents + FAT[i].size; j++) {
                 EEPROM.write(j, 255);
             }
+            EEPROM.write(j+1, 255);
 
             break;
         }
@@ -250,8 +254,27 @@ uint16_t getFileAddress(char *file)
 
 
 /**
+ * Function to retrieve the file size
+ * 
+ * @param file
+ * @return size_t
+*/
+size_t getFileSize(char *file)
+{
+    for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
+        if (strcmp(FAT[i].filename, file) == 0) {
+            return FAT[i].size;
+        }
+    }
+
+    return 0;
+}
+
+
+/**
  * Show the freespace on the FAT
  * 
+ * @return uint16_t
 */
 uint16_t showFreeSpace()
 {

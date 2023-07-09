@@ -35,7 +35,7 @@ void initMemory()
 */
 byte *pushByte(byte *address, uint8_t &sp, byte b)
 {
-    Serial.println(sp);
+    // Serial.println(sp);
     address[sp++] = b;
     return address;
 }
@@ -61,17 +61,18 @@ byte popByte(byte *address, uint8_t &sp)
  * @param y
  * @return uint16_t
 */
-byte *pushInt(byte *address, uint8_t &sp, int x)
+byte *pushInt(byte *address, uint8_t &sp, int x, int y)
 {
     if (2 + sp > 32) {
         Serial.println(F("[error]\tNo space available in memory!"));
         return;
     }
 
-    Serial.println(sp);
+    // Serial.println(sp);
 
     byte *a = pushByte(address, sp, INT);
     pushByte(address, sp, x);
+    pushByte(address, sp, y);
 
     return a;
 }
@@ -181,14 +182,15 @@ char *popString(byte *address, uint8_t &sp)
  * @param size
  * @param type
 */
-void memAlloc(uint8_t pid, char *name, size_t size, memtype_e type, byte *address)
+void memAlloc(uint8_t pidd, char *name, size_t size, memtype_e type, byte *address)
 {
-    Serial.print(F("Process id in ma: "));
-    Serial.println(pid);
+    // Serial.print(F("Process id in ma: "));
+    // Serial.println(pidd);
 
     for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
         if (memoryTable[i].state == FREE) {
-            memoryTable[i].p_id = pid;
+            memoryTable[i].pid = pidd;
+            // memoryTable[i].coolerepid = pidd;
             memcpy(memoryTable[i].name, name, 12);
             memoryTable[i].type = type;
             memoryTable[i].state = OCCUPIED;
@@ -205,25 +207,41 @@ void memAlloc(uint8_t pid, char *name, size_t size, memtype_e type, byte *addres
  * @param pid
  * @param name
 */
-byte *memRead(uint8_t pid, char *name)
+memtable_s *memRead(uint8_t pid, char *name)
 {
     for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
-        if (memoryTable[i].p_id == pid && strcmp(memoryTable[i].name, name) == 0) {
-            return memoryTable[i].address;
+        if (memoryTable[i].pid == pid && strcmp(memoryTable[i].name, name) == 0) {
+            return &memoryTable[i];
+        }
+    }
+
+    Serial.println(F("[error]\tVariable doesn't exist"));
+}
+
+
+/**
+ * Function to get the type of the variable
+ * 
+*/
+memtype_e typeSearch(uint8_t pid, char *name)
+{
+    for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
+        if (memoryTable[i].pid == pid && strcmp(memoryTable[i].name, name) == 0) {
+            return memoryTable[i].type;
         }
     }
 }
 
 
 /**
- * 
+ * Function to get the type of the variable
  * 
 */
-memtype_e memSearch(uint8_t pid, char *name)
+byte *addressSearch(uint8_t pid, char *name)
 {
     for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
-        if (memoryTable[i].p_id == pid && strcmp(memoryTable[i].name, name) == 0) {
-            return memoryTable[i].type;
+        if (memoryTable[i].pid == pid && strcmp(memoryTable[i].name, name) == 0) {
+            return memoryTable[i].address;
         }
     }
 }
@@ -238,8 +256,8 @@ memtype_e memSearch(uint8_t pid, char *name)
 void memFree(uint8_t pid, char *name)
 {
     for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
-        if (memoryTable[i].p_id == pid && strcmp(memoryTable[i].name, name) == 0 && memoryTable[i].state == OCCUPIED) {
-            memoryTable[i].p_id = 0;
+        if (memoryTable[i].pid == pid) {
+            memoryTable[i].pid = 0;
             memcpy(memoryTable[i].name, "", 0);
             memoryTable[i].type = VOID;
             memoryTable[i].state = FREE;
@@ -301,7 +319,7 @@ void showMemTable()
 {
     for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
         Serial.print(F("Process id: "));
-        Serial.print(memoryTable[i].p_id);
+        Serial.print(memoryTable[i].pid);
         Serial.print(F(" | variable name: "));
         Serial.print(memoryTable[i].name);
         Serial.print(F(" | data type: "));

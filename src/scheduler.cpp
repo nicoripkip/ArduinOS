@@ -6,7 +6,7 @@
 #include <EEPROM.h>
 
 
-#define MAX_TASKS       25
+#define MAX_TASKS       12
 
 
 static struct task_s schedulerTable[MAX_TASKS];
@@ -27,8 +27,8 @@ uint8_t readDataRegion(char *buffer, uint16_t address)
     uint8_t c = 0;
     while (EEPROM.read(address) != 32 && EEPROM.read(address) != 255) {
         char b = EEPROM.read(address);
-        Serial.print(F("Read data: "));
-        Serial.println(b);
+        // Serial.print(F("Read data: "));
+        // Serial.println(b);
         strncat(buffer, &b, 1);
         address++;
         c++;
@@ -69,6 +69,7 @@ void addTask(char *file)
             schedulerTable[i].p_id = process_counter;
             memcpy(schedulerTable[i].file, file, 12);
             schedulerTable[i].fp = getFileAddress(file);
+            schedulerTable[i].ps = getFileSize(file);
             schedulerTable[i].state = RUNNING;
             schedulerTable[i].pc = 0;
             schedulerTable[i].sp = 0;
@@ -206,9 +207,9 @@ void runTasks()
             r = execute(t, &schedulerTable[i]);
             schedulerTable[i].pc+=r;
 
-            // if (schedulerTable[i].pc >= 15) {
-            //     removeTask(schedulerTable[i].p_id);
-            // }
+            if (schedulerTable[i].pc >= schedulerTable[i].ps-1) {
+                removeTask(schedulerTable[i].p_id);
+            }
         }
     }
 }

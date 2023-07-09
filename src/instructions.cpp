@@ -9,9 +9,12 @@
 #define SPATIAL_CHARACTER 32
 
 
-static char buff[10];
+static char var1[10];
+static char var2[10];
 static byte *s_address;
 static memtype_e s_type;
+static int result1;
+static int result2;
 
 
 /**
@@ -21,43 +24,68 @@ static memtype_e s_type;
 */
 uint8_t execute(byte instruction, struct task_s *task)
 {
+    uint8_t x = 0;
+    uint8_t y = 0;
     uint8_t r = 0;
     switch (instruction)
     {
         case CHARR:
             break;
         case INTT:
-            r = readDataRegion(buff, task->fp+task->pc);
-            Serial.print(F("Stack pointer: "));
-            Serial.println(task->sp);
-            s_address = pushInt(task->stack, task->sp, atoi(buff));
+            x = readDataRegion(var1, task->fp+task->pc);
+            task->pc+=x+1;
+            y = readDataRegion(var2, task->fp+task->pc);
+            // Serial.print(F("Stack pointer: "));
+            // Serial.println(task->sp);
+            result1 = atoi(var1);
+            result2 = atoi(var2);
             s_type = INT;
-            showStack(task->stack);
+            // Serial.print(F("Stack address: "));
+            // Serial.println((uint16_t)s_address);
+            // showStack(task->stack);
+            s_address = pushInt(task->stack, task->sp, result2, result1);
+            r = y;
             break;
         case STRINGG:
             break;
         case FLOATT:
             break;
         case SET:
-            r = readDataRegion(buff, task->fp+task->pc);
-            // Serial.print(F("Process id: "));
-            // Serial.println(task->p_id);
-            memAlloc(task->p_id, buff, 2, s_type, s_address);
-            break;
-        case GET:
-            r = readDataRegion(buff, task->fp+task->pc);
-            memtype_e v_type = memSearch(task->p_id, buff);
+            r = readDataRegion(var1, task->fp+task->pc);
 
-            Serial.print(F("Variable type: "));
-            Serial.println(v_type);
-
-            switch (v_type) 
+            switch (s_type) 
             {
                 case INT:
-                    int result = popInt(task->stack, task->sp);
+                    memAlloc(task->p_id, var1, 2, INT, s_address);
                     break;
                 case CHAR:
+                    memAlloc(task->p_id, var1, 1, CHAR, s_address);
+                    break;
+                case FLOAT:
+                    memAlloc(task->p_id, var1, 4, FLOAT, s_address);
+                    break;
+                case STRING:
+                    memAlloc(task->p_id, var1, 4, STRING, s_address);
+                    break;
+            }
+            break;
+        case GET:
+            r = readDataRegion(var1, task->fp+task->pc);
+            // Serial.print(F("Variable type: "));
+            // Serial.println(s_type);
 
+            struct memtable_s *var = memRead(task->p_id, var1);
+
+            switch (var->type) 
+            {
+                case INT:
+                    pushInt(task->stack, task->sp, atoi(var->value), atoi(var->value) <= 255 ? 0 : 1);
+                    // showStack(task->stack);
+                    // Serial.print(F("Get: "));
+                    // Serial.println(result);
+                    break;
+                case CHAR:
+                    pushChar(task->stack, task->sp, var->value[0], 0);
                     break;
                 case FLOAT:
 
@@ -66,12 +94,20 @@ uint8_t execute(byte instruction, struct task_s *task)
 
                     break;
             }
+
+            memFree(task->p_id, var1);
             break;
         case INCREMENT:
+            int varI = popInt(task->stack, task->sp);
+            varI++;
+            pushInt(task->stack, task->sp, varI, varI <= 255 ? 0 : 1);
+            showStack(task->stack);
             break;
         case DECREMENT:
+            result2--;
             break;
         case PLUS:
+
             break;
         case MINUS:
             break;
@@ -156,12 +192,32 @@ uint8_t execute(byte instruction, struct task_s *task)
         case DIGITALWRITE:
             break;
         case PRINT:
-            r = readDataRegion(buff, task->fp+task->pc);
-            Serial.print(buff);
+            Serial.print(result2);
             break;
         case PRINTLN:
-            r = readDataRegion(buff, task->fp+task->pc);
-            Serial.println(buff);
+            switch (s_type) 
+            {
+                case INT:
+                    Serial.print(F("Incremente waarde: "));
+                    Serial.println(varI);
+                    int varI = popInt(task->stack, task->sp);
+                    Serial.println(varI);
+                    // showStack(task->stack);
+                    // Serial.print(F("Get: "));
+                    // Serial.println(result);
+                    break;
+                case CHAR:
+                    char varC = popChar(task->stack, task->sp);
+                    Serial.println(varC);
+                    break;
+                case FLOAT:
+                    float varF = popFloat(task->stack, task->sp);
+                    break;
+                case STRING:
+                    break;
+            }
+            break;
+
             break;
         case OPEN:
            break;
@@ -192,7 +248,8 @@ uint8_t execute(byte instruction, struct task_s *task)
         case ENDLOOP:
             break;
         case STOP:
-            Serial.println(F("Execute stop"));
+            Serial.println(F("[info]\tExecute stop"));
+            memFree(task->p_id, task->file);
             suspendTask(task->p_id);
             return 0;
         case FORK:

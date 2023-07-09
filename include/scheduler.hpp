@@ -21,6 +21,7 @@ struct task_s
     uint8_t p_id;
     taskState_e state;
     char file[12];
+    size_t ps;
     uint16_t fp;
     uint16_t pc;
     uint8_t sp;
