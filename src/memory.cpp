@@ -84,7 +84,7 @@ byte *pushInt(byte *address, uint8_t &sp, int x, int y)
  * @param x
  * @return uint16_t
 */
-byte *pushChar(byte *address, uint8_t &sp, char x)
+byte *pushChar(byte *address, uint8_t &sp, char x, int y)
 {
     if (2 + sp > 32) {
         Serial.println(F("[error]\tNo space available in memory!"));

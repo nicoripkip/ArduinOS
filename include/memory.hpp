@@ -41,6 +41,7 @@ struct memtable_s
     memtype_e       type;
     memstate_e      state;
     char            value[10];
+    unsigned char   *address;
 };
 
 
