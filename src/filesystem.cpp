@@ -51,6 +51,11 @@ void writeFATEntry(char *file, size_t size, char *contents)
         return;
     }
 
+    if (totalFiles+1 > MAX_FAT_SIZE) {
+        Serial.println(F("[error] Too many files on FAT!"));
+        return;
+    }
+
     // Check if file name already exists on filesystem
     for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
         if (strcmp(file, FAT[i].filename) == 0) {
@@ -61,10 +66,11 @@ void writeFATEntry(char *file, size_t size, char *contents)
 
     uint8_t i;
     for (i = 0; i < MAX_FAT_SIZE-1; i++) {
-        if (FAT[i+1].contents == 0) {
-            Serial.print(F("Found a free space in table on position: "));
-            Serial.println(i);
 
+        // Check if there is a free place in the FAT table 
+        if (FAT[i+1].contents == 0) {
+
+            // Check if there is enough space on disk
             if (FAT[i].contents + FAT[i].size + size + 1 < END_CONTENT_SPACE) {
                 memcpy(FAT[i+1].filename, file, 12);
                 FAT[i+1].contents = FAT[i].contents + FAT[i].size + 1;
@@ -84,6 +90,7 @@ void writeFATEntry(char *file, size_t size, char *contents)
         }
     }
 
+    EEPROM.write(0, (totalFiles++));
     EEPROM.put(2, FAT);
 }
 
@@ -101,13 +108,17 @@ char *retrieveFATEntry(char *file)
         return nullptr;
     }
 
+    // Reset file buffer
     memset(buffer, 0, 30);
 
-    uint8_t i;
-    for (i = 0; i < MAX_FAT_SIZE; i++) {
+    for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
         if (strcmp(file, FAT[i].filename) == 0) {
+
+            // Read file contents from eeprom
             for (uint16_t j = FAT[i].contents; j < FAT[i].contents + FAT[i].size; j++) {
-                char b = EEPROM.read(j); strncat(buffer, &b, 1); }
+                char b = EEPROM.read(j); 
+                strncat(buffer, &b, 1); 
+            }
             
             return buffer;
         }
@@ -159,30 +170,20 @@ void eraseFATEntry(char *file)
         return;
     }
 
-    uint8_t i;
-    for (i = 0; i < MAX_FAT_SIZE; i++) {
+    for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
         if (strcmp(file, FAT[i].filename) == 0) {
-            Serial.println(F("[info] Found file on FAT"));
-            Serial.println(FAT[i].contents);
-
-            uint16_t j;
-            for (j = FAT[i].contents; j < FAT[i].contents + FAT[i].size; j++) {
-                EEPROM.write(j, 255);
-            }
-            EEPROM.write(j+1, 255);
+            memcpy(FAT[i].filename, 0, 12);
+            FAT[i].contents = 0;
+            FAT[i].size = 0;
 
             break;
         }
     }
 
-    memcpy(FAT[i].filename, "", 1);
-    FAT[i].size = 0;
-    FAT[i].contents = 0;
-
     EEPROM.write(0, (--totalFiles));
     EEPROM.put(2, FAT);
 
-    Serial.println(F("[error] File does not exist on filesystem!"));
+    Serial.println(F("[error] File erased from FAT!"));
     return;
 }
 
