@@ -4,6 +4,7 @@
 
 #define MAX_FAT_SIZE        10
 #define BEGIN_CONTENT_SPACE 280
+#define END_CONTENT_SPACE   1024
 
 
 static uint8_t  totalFiles = 0;
@@ -28,7 +29,6 @@ void initFileSystem()
             FAT[i].contents = 0;
         }
     }
-    EEPROM.put(2, FAT);
 }
 
 
@@ -51,6 +51,7 @@ void writeFATEntry(char *file, size_t size, char *contents)
         return;
     }
 
+    // Check if file name already exists on filesystem
     for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
         if (strcmp(file, FAT[i].filename) == 0) {
             Serial.println(F("[error] File already exists on disk!"));
@@ -58,42 +59,32 @@ void writeFATEntry(char *file, size_t size, char *contents)
         }
     }
 
-    uint16_t i;
-    for (i = BEGIN_CONTENT_SPACE; i < EEPROM.length(); i++) {
-        if (EEPROM.read(i) == 255) {
-            uint16_t j;
-            for (j = i; j < EEPROM.length(); j++) {
-                if (EEPROM.read(j) != 255 || j > size) {
-                    break;
+    uint8_t i;
+    for (i = 0; i < MAX_FAT_SIZE-1; i++) {
+        if (FAT[i+1].contents == 0) {
+            Serial.print(F("Found a free space in table on position: "));
+            Serial.println(i);
+
+            if (FAT[i].contents + FAT[i].size + size + 1 < END_CONTENT_SPACE) {
+                memcpy(FAT[i+1].filename, file, 12);
+                FAT[i+1].contents = FAT[i].contents + FAT[i].size + 1;
+                FAT[i+1].size = size;
+                
+                uint8_t k = 0;
+                for (uint16_t j = FAT[i+1].contents; j < FAT[i+1].contents + size; j++) {
+                    EEPROM.write(j, contents[k]);
+                    k++;
                 }
+            } else {
+                Serial.println(F("[error] Not enough space on disk!"));
+                return;
             }
 
-            if (j >= size) {
-                break;
-            }
+            break;
         }
     }
 
-    if (i+size+1 < EEPROM.length()) {
-        memcpy(FAT[totalFiles].filename, file, 12);
-        FAT[totalFiles].contents = i;
-        FAT[totalFiles].size = size;
-
-        uint16_t j;
-        for (j = i; j < i + size; j++) {
-            Serial.println(contents[j-i]);
-            EEPROM.write(j, (int)contents[j-i]);
-        }
-        EEPROM.write(j+1, 32);
-
-        EEPROM.put(2, FAT);
-        EEPROM.write(0, ++totalFiles);
-        EEPROM.write(1, (availableSpace+size));
-
-        Serial.println(F("[info] File saved on disk!"));
-    } else {
-        Serial.println(F("[error] Not enough space on disk!"));
-    }
+    EEPROM.put(2, FAT);
 }
 
 
