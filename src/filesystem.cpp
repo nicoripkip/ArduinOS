@@ -2,7 +2,7 @@
 #include <EEPROM.h>
 
 
-#define MAX_FAT_SIZE        15
+#define MAX_FAT_SIZE        10
 #define BEGIN_CONTENT_SPACE 280
 
 
@@ -21,6 +21,14 @@ void initFileSystem()
     totalFiles = EEPROM.read(0);
     availableSpace = EEPROM.read(1);
     EEPROM.get(2, FAT);
+
+    // make sure every empty pointers stays zero
+    for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
+        if (FAT[i].contents == 65535) {
+            FAT[i].contents = 0;
+        }
+    }
+    EEPROM.put(2, FAT);
 }
 
 
@@ -34,24 +42,21 @@ void initFileSystem()
 void writeFATEntry(char *file, size_t size, char *contents)
 {
     if (strcmp(file, "") == 0) {
-        Serial.println(F("[error]\tNo filename given!"));
+        Serial.println(F("[error] No filename given!"));
         return;
     } 
 
     if (size == 0) {
-        Serial.println(F("[error]\rNo data length given!"));
+        Serial.println(F("[error] No data length given!"));
         return;
     }
 
     for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
         if (strcmp(file, FAT[i].filename) == 0) {
-            Serial.println(F("[error]\tFile already exists on disk!"));
+            Serial.println(F("[error] File already exists on disk!"));
             return;
         }
     }
-
-    Serial.print(F("Grootte eeprom: "));
-    Serial.println(contents);
 
     uint16_t i;
     for (i = BEGIN_CONTENT_SPACE; i < EEPROM.length(); i++) {
@@ -85,9 +90,9 @@ void writeFATEntry(char *file, size_t size, char *contents)
         EEPROM.write(0, ++totalFiles);
         EEPROM.write(1, (availableSpace+size));
 
-        Serial.println(F("[info]\tFile saved on disk!"));
+        Serial.println(F("[info] File saved on disk!"));
     } else {
-        Serial.println(F("[error]\tNot enough space on disk!"));
+        Serial.println(F("[error] Not enough space on disk!"));
     }
 }
 
@@ -101,7 +106,7 @@ void writeFATEntry(char *file, size_t size, char *contents)
 char *retrieveFATEntry(char *file)
 {
     if (strcmp(file, "") == 0) {
-        Serial.println(F("[error]\tNo filename given!"));
+        Serial.println(F("[error] No filename given!"));
         return nullptr;
     }
 
@@ -110,20 +115,15 @@ char *retrieveFATEntry(char *file)
     uint8_t i;
     for (i = 0; i < MAX_FAT_SIZE; i++) {
         if (strcmp(file, FAT[i].filename) == 0) {
-            Serial.println(F("[info]\tFound file on FAT"));
-            Serial.println(FAT[i].contents);
-
             for (uint16_t j = FAT[i].contents; j < FAT[i].contents + FAT[i].size; j++) {
-                char b = EEPROM.read(j);
-                strncat(buffer, &b, 1);
-            }
+                char b = EEPROM.read(j); strncat(buffer, &b, 1); }
             
             return buffer;
         }
     }
 
 
-    Serial.println(F("[error]\tFile does not exist on filesystem!"));
+    Serial.println(F("[error] File does not exist on filesystem!"));
     return nullptr;
 }
 
@@ -134,7 +134,6 @@ char *retrieveFATEntry(char *file)
 */
 void showFT()
 {
-    Serial.flush();
     Serial.println(F("---------------------------------------------------------"));
 
     for (uint16_t i = BEGIN_CONTENT_SPACE; i < EEPROM.length(); i++) {
@@ -165,14 +164,14 @@ uint32_t totalFilesInFAT()
 void eraseFATEntry(char *file)
 {
     if (strcmp(file, "") == 0) {
-        Serial.println(F("[error]\tNo filename given!"));
+        Serial.println(F("[error] No filename given!"));
         return;
     }
 
     uint8_t i;
     for (i = 0; i < MAX_FAT_SIZE; i++) {
         if (strcmp(file, FAT[i].filename) == 0) {
-            Serial.println(F("[info]\tFound file on FAT"));
+            Serial.println(F("[info] Found file on FAT"));
             Serial.println(FAT[i].contents);
 
             uint16_t j;
@@ -192,7 +191,7 @@ void eraseFATEntry(char *file)
     EEPROM.write(0, (--totalFiles));
     EEPROM.put(2, FAT);
 
-    Serial.println(F("[error]\tFile does not exist on filesystem!"));
+    Serial.println(F("[error] File does not exist on filesystem!"));
     return;
 }
 
@@ -227,10 +226,12 @@ void eraseAll()
 void allFilesOnFAT()
 {
     for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
-        if (strcmp(FAT[i].filename, "")) {
+        // if (strcmp(FAT[i].filename, "")) {
             Serial.print(F(" -- "));
-            Serial.println(FAT[i].filename);
-        }
+            Serial.print(FAT[i].filename); 
+            Serial.print(F(" and: "));
+            Serial.println(FAT[i].contents);
+        // }
     }
 }
 

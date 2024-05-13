@@ -60,7 +60,7 @@ void initScheduler()
 void addTask(char *file)
 {
     if (getFileAddress(file) == 0) {
-        Serial.println(F("[error]\tFile doesn't exist!"));
+        Serial.println(F("[error] File doesn't exist!"));
         return;
     }
 
@@ -79,7 +79,7 @@ void addTask(char *file)
 
             process_counter++;
 
-            Serial.print(F("[info]\tProcess: "));
+            Serial.print(F("[info] Process: "));
             Serial.print(process_counter);
             Serial.println(F(" succesfully created!"));
 
@@ -99,12 +99,12 @@ void resumeTask(uint8_t pid)
     for (uint8_t i = 0; i < MAX_TASKS; i++) {
         if (schedulerTable[i].p_id == pid) {
             schedulerTable[i].state = RUNNING;
-            Serial.println(F("[info]\tProcess succesfully resumed!"));
+            Serial.println(F("[info] Process succesfully resumed!"));
             return;
         }
     }
 
-    Serial.println(F("[error]\tProcess not found in the scheduling table!"));
+    Serial.println(F("[error] Process not found in the scheduling table!"));
 }
 
 
@@ -118,12 +118,12 @@ void suspendTask(uint8_t pid)
     for (uint8_t i = 0; i < MAX_TASKS; i++) {
         if (schedulerTable[i].p_id == pid) {
             schedulerTable[i].state = SUSPENDED;
-            Serial.println(F("[info]\tProcess succesfully suspended!"));
+            Serial.println(F("[info] Process succesfully suspended!"));
             return;
         }
     }
 
-    Serial.println(F("[error]\tProcess not found in the scheduling table!"));
+    Serial.println(F("[error] Process not found in the scheduling table!"));
 }
 
 
@@ -147,12 +147,12 @@ void removeTask(uint8_t pid)
             schedulerTable[i].stack = nullptr;
 
             process_counter--;
-            Serial.println(F("[info]\tProcess successfully terminated!"));
+            Serial.println(F("[info] Process successfully terminated!"));
             return;
         }
     }
 
-    Serial.println(F("[error]\tProcess not found in the scheduling table!"));
+    Serial.println(F("[error] Process not found in the scheduling table!"));
 }
 
 

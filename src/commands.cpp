@@ -29,7 +29,6 @@ void clearBuffer()
 */
 void readInput()
 {
-    Serial.flush();
     if (Serial.available() != 0) {
         char input = Serial.read();
         Serial.print(input);
@@ -57,6 +56,8 @@ void readInput()
 
             clearBuffer();
             bp = 0;
+        } else if ((int)input == 127) { 
+            Serial.println(F("Backspace pressed!"));
         } else {
             strncat(command_buffer[bp], &input, 1);
         }
@@ -121,7 +122,7 @@ void neofetch()
 void files()
 {
     Serial.flush();
-    Serial.print(F("[info]\tTotal files in filesystem: "));
+    Serial.print(F("[info] Total files in filesystem: "));
     Serial.println(totalFilesInFAT());
     Serial.println(F("-------- FILES --------"));
     allFilesOnFAT();
@@ -131,7 +132,7 @@ void files()
 void freespace()
 {
     uint16_t t = showFreeSpace();
-    Serial.print(F("[info]\tAvailable space: "));
+    Serial.print(F("[info] Available space: "));
     Serial.print(t);
     Serial.println(F("/1024"));
 }
@@ -144,13 +145,13 @@ void freespace()
 void store()
 {
     if (strcmp(command_buffer[1], "") == 0 || strcmp(command_buffer[2], "") == 0) {
-        Serial.println(F("[error]\tCannot save file!"));
+        Serial.println(F("[error] Cannot save file!"));
         return;
     }
 
     Serial.flush();
 
-    Serial.println(F("[info]\tType in the file contents: "));
+    Serial.println(F("[info] Type in the file contents: "));
 
     while (true) {
         if (Serial.available() != 0) {
@@ -178,7 +179,7 @@ void retrieve()
 {
     Serial.flush();
     if (strcmp(command_buffer[1], "") == 0) {
-        Serial.println(F("[error]\tRETRIEVE requires a parameter!"));
+        Serial.println(F("[error] RETRIEVE requires a parameter!"));
         return;
     }
 
@@ -196,18 +197,18 @@ void retrieve()
 void erase()
 {
     if (strcmp(command_buffer[1], "") == 0) {
-        Serial.println(F("[error]\tERASE requires a parameter!"));
+        Serial.println(F("[error] ERASE requires a parameter!"));
         return;
     }
 
-    Serial.println(F("[info]\tStart erasing!"));
+    Serial.println(F("[info] start erasing!"));
     if (strcmp(command_buffer[1], "all") == 0) {
 
         eraseAll();
-        Serial.println(F("[info]\tAll files on FAT erased!"));
+        Serial.println(F("[info] All files on FAT erased!"));
     } else {
         eraseFATEntry(command_buffer[1]);
-        Serial.print(F("[info]\t"));
+        Serial.print(F("[info] "));
         Serial.print(command_buffer[1]);
         Serial.println(F(" erased succesfully!"));
     }
@@ -221,11 +222,11 @@ void erase()
 void run()
 {
     if (strcmp(command_buffer[1], "") == 0) {
-        Serial.println(F("[error]\tRUN requires a parameter!"));
+        Serial.println(F("[error] RUN requires a parameter!"));
         return;
     }
 
-    Serial.println(F("[info]\tTry to start a new task!"));
+    Serial.println(F("[info] Try to start a new task!"));
     addTask(command_buffer[1]);
 }
 
@@ -248,12 +249,12 @@ void list()
 void suspend()
 {
     if (strcmp(command_buffer[1], "") == 0) {
-        Serial.println(F("[error]\tSUSPEND requires a parameter!"));
+        Serial.println(F("[error] SUSPEND requires a parameter!"));
         return;
     }
 
     suspendTask(atoi(command_buffer[1]));
-    Serial.println(F("[info]\tSuccesfully suspended task!"));
+    Serial.println(F("[info] Succesfully suspended task!"));
 }
 
 
@@ -264,12 +265,12 @@ void suspend()
 void resume()
 {
     if (strcmp(command_buffer[1], "") == 0) {
-        Serial.println(F("[error]\tRESUME requires a parameter!"));
+        Serial.println(F("[error] RESUME requires a parameter!"));
         return;
     }
 
     resumeTask(atoi(command_buffer[1]));
-    Serial.println(F("[info]\tSuccesfully resumed task!"));
+    Serial.println(F("[info] Succesfully resumed task!"));
 }
 
 
@@ -280,7 +281,7 @@ void resume()
 void kill()
 {
     if (strcmp(command_buffer[1], "") == 0) {
-        Serial.println(F("[error]\tKILL requires a parameter!"));
+        Serial.println(F("[error] KILL requires a parameter!"));
         return;
     }
 
