@@ -139,10 +139,11 @@ byte *pushString(byte *address, uint8_t &sp, char *x)
 */
 int popInt(byte *address, uint8_t &sp)
 {
-    byte r = popByte(address, sp);
+    byte x = popByte(address, sp);
+    byte y = popByte(address, sp);
     popByte(address, sp);
 
-    return (int)r;
+    return (int)(x * 256) + y;
 }
 
 
@@ -195,7 +196,7 @@ void memAlloc(uint8_t pidd, char *name, size_t size, memtype_e type, byte *addre
             memoryTable[i].type = type;
             memoryTable[i].state = OCCUPIED;
             memoryTable[i].address = address;
-            return;
+            break;
         }
     }
 }

@@ -64,6 +64,9 @@ void writeFATEntry(char *file, size_t size, char *contents)
         }
     }
 
+    Serial.print(F("Text to save on disk: "));
+    Serial.println(contents);
+
     uint8_t i;
     for (i = 0; i < MAX_FAT_SIZE-1; i++) {
 
@@ -73,13 +76,18 @@ void writeFATEntry(char *file, size_t size, char *contents)
             // Check if there is enough space on disk
             if (FAT[i].contents + FAT[i].size + size + 1 < END_CONTENT_SPACE) {
                 memcpy(FAT[i+1].filename, file, 12);
-                FAT[i+1].contents = FAT[i].contents + FAT[i].size + 1;
+                FAT[i+1].contents = BEGIN_CONTENT_SPACE + FAT[i].contents + FAT[i].size + 1;
                 FAT[i+1].size = size;
                 
                 uint8_t k = 0;
                 for (uint16_t j = FAT[i+1].contents; j < FAT[i+1].contents + size; j++) {
                     EEPROM.write(j, contents[k]);
                     k++;
+
+                    Serial.print("FAT address: ");
+                    Serial.print(j);
+                    Serial.print(" | Value: ");
+                    Serial.println(contents[k]);
                 }
             } else {
                 Serial.println(F("[error] Not enough space on disk!"));
@@ -172,7 +180,7 @@ void eraseFATEntry(char *file)
 
     for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
         if (strcmp(file, FAT[i].filename) == 0) {
-            memcpy(FAT[i].filename, 0, 12);
+            memcpy(FAT[i].filename, '\0', 12);
             FAT[i].contents = 0;
             FAT[i].size = 0;
 
@@ -280,4 +288,21 @@ uint16_t showFreeSpace()
     }
 
     return EEPROM.length() - 280 - c;
+}
+
+
+
+uint8_t readDataRegion(char *buffer, uint16_t address)
+{
+    memset(buffer, '\0', 10);
+
+    int counter = 0;
+
+    while ((int)EEPROM.read(address+counter) != 32) {
+        char c = (char)EEPROM.read(address);
+        strncat(buffer, c, 1);
+        counter++;
+    }   
+
+    return counter;
 }

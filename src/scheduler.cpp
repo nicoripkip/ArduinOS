@@ -3,7 +3,6 @@
 #include "filesystem.hpp"
 #include "memory.hpp"
 #include "instructions.hpp"
-#include <EEPROM.h>
 
 
 #define MAX_TASKS       12
@@ -11,31 +10,6 @@
 
 static struct task_s schedulerTable[MAX_TASKS];
 static uint16_t process_counter = 1;
-
-
-/**
- * Function to read a piece of data from memory
- * 
- * @param buffer
- * @param address
- * @return uint8_t
-*/
-uint8_t readDataRegion(char *buffer, uint16_t address)
-{
-    memset(buffer, 0, sizeof(buffer));
-
-    uint8_t c = 0;
-    while (EEPROM.read(address) != 32 && EEPROM.read(address) != 255) {
-        char b = EEPROM.read(address);
-        // Serial.print(F("Read data: "));
-        // Serial.println(b);
-        strncat(buffer, &b, 1);
-        address++;
-        c++;
-    }
-
-    return c;
-}
 
 
 /**
@@ -59,7 +33,8 @@ void initScheduler()
 */
 void addTask(char *file)
 {
-    if (getFileAddress(file) == 0) {
+    // TODO: Create function in filesystem.cpp to check if file exist
+    if (strcmp(file, "") == 0) {
         Serial.println(F("[error] File doesn't exist!"));
         return;
     }
@@ -201,13 +176,22 @@ void runTasks()
     for (uint8_t i = 0; i < MAX_TASKS; i++) {
         if (schedulerTable[i].state == RUNNING) {
             char b[10];
-            uint8_t r = readDataRegion(b, schedulerTable[i].fp+schedulerTable[i].pc);
+            readDataRegion(b, schedulerTable[i].fp+schedulerTable[i].pc);
+            
+            Serial.print(F("Program counter: "));
+            Serial.println(schedulerTable[i].pc);
+ 
+            Serial.print(F("Instruction: "));
+            Serial.println(b);
+            execute(atoi(b), &schedulerTable[i]);
+            /*
             byte t = atoi(b);
             schedulerTable[i].pc+=r+1;
             r = execute(t, &schedulerTable[i]);
             schedulerTable[i].pc+=r;
 
-            if (schedulerTable[i].pc >= schedulerTable[i].ps-1) {
+            */
+            if (schedulerTable[i].pc >= schedulerTable[i].ps) {
                 removeTask(schedulerTable[i].p_id);
             }
         }

@@ -27,35 +27,44 @@ uint8_t execute(byte instruction, struct task_s *task)
     uint8_t x = 0;
     uint8_t y = 0;
     uint8_t r = 0;
+
+    Serial.print(F("Instructionn: "));
+    Serial.println(instruction);
+
     switch (instruction)
     {
         case CHARR:
             break;
         case INTT:
-            x = readDataRegion(var1, task->fp+task->pc);
-            task->pc+=x+1;
-            y = readDataRegion(var2, task->fp+task->pc);
-            // Serial.print(F("Stack pointer: "));
-            // Serial.println(task->sp);
+            task->pc+=2;
+            readDataRegion(var1, task->fp+task->pc);
+            task->pc+=2;
+            
+            readDataRegion(var2, task->fp+task->pc);
+            task->pc+=2;
+
             result1 = atoi(var1);
             result2 = atoi(var2);
+            
             s_type = INT;
-            // Serial.print(F("Stack address: "));
-            // Serial.println((uint16_t)s_address);
-            // showStack(task->stack);
-            s_address = pushInt(task->stack, task->sp, result2, result1);
-            r = y;
+        
+            s_address = pushInt(task->stack, task->sp, result2, result1);    
+            showStack(task->stack);
+            r = task;
             break;
         case STRINGG:
             break;
         case FLOATT:
             break;
         case SET:
-            r = readDataRegion(var1, task->fp+task->pc);
+            task->pc+=2;
+            readDataRegion(var1, task->fp+task->pc);
+            task->pc+=2;
 
             switch (s_type) 
             {
                 case INT:
+                    // int v = popInt(task->stack, task->sp);
                     memAlloc(task->p_id, var1, 2, INT, s_address);
                     break;
                 case CHAR:
@@ -79,13 +88,13 @@ uint8_t execute(byte instruction, struct task_s *task)
             switch (var->type) 
             {
                 case INT:
-                    pushInt(task->stack, task->sp, atoi(var->value), atoi(var->value) <= 255 ? 0 : 1);
+                    // pushInt(task->stack, task->sp, atoi(var->value), atoi(var->value) <= 255 ? 0 : 1);
                     // showStack(task->stack);
                     // Serial.print(F("Get: "));
                     // Serial.println(result);
                     break;
                 case CHAR:
-                    pushChar(task->stack, task->sp, var->value[0], 0);
+                    // pushChar(task->stack, task->sp, var->value[0], 0);
                     break;
                 case FLOAT:
 

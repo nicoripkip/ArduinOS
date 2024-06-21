@@ -40,7 +40,6 @@ struct memtable_s
     char            name[5];
     memtype_e       type;
     memstate_e      state;
-    char            value[10];
     unsigned char   *address;
 };
 
@@ -66,7 +65,6 @@ uint8_t readDataRegion(char *buffer, uint16_t address);
 
 void showStack(byte *address);
 void showMemTable();
-
 
 
 #endif
