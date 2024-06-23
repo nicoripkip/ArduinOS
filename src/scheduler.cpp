@@ -5,7 +5,7 @@
 #include "instructions.hpp"
 
 
-#define MAX_TASKS       12
+#define MAX_TASKS       10
 
 
 static struct task_s schedulerTable[MAX_TASKS];
@@ -48,9 +48,9 @@ void addTask(char *file)
             schedulerTable[i].state = RUNNING;
             schedulerTable[i].pc = 0;
             schedulerTable[i].sp = 0;
-            schedulerTable[i].stack = stackAlloc(32);
+            byte* t = stackAlloc(32);
+            schedulerTable[i].stack = t;
             memset(schedulerTable[i].stack, 0, 32);
-            Serial.println(schedulerTable[i].stack[0]);
 
             process_counter++;
 
@@ -115,11 +115,7 @@ void removeTask(uint8_t pid)
             schedulerTable[i].state = TERMINATED;
             memset(schedulerTable[i].file, 0, 12);
 
-            for (uint16_t j = 0; j < 10; j++) {
-                schedulerTable[i].stack[j] = 0;
-            }
-
-            schedulerTable[i].stack = nullptr;
+            schedulerTable[i].stack = stackFree(schedulerTable[i].stack, 32);
 
             process_counter--;
             Serial.println(F("[info] Process successfully terminated!"));
@@ -176,22 +172,23 @@ void runTasks()
     for (uint8_t i = 0; i < MAX_TASKS; i++) {
         if (schedulerTable[i].state == RUNNING) {
             char b[10];
-            readDataRegion(b, schedulerTable[i].fp+schedulerTable[i].pc);
+            int r = readDataRegion(b, schedulerTable[i].fp+schedulerTable[i].pc);
             
+            /*
             Serial.print(F("Program counter: "));
             Serial.println(schedulerTable[i].pc);
  
-            Serial.print(F("Instruction: "));
-            Serial.println(b);
-            execute(atoi(b), &schedulerTable[i]);
-            /*
-            byte t = atoi(b);
-            schedulerTable[i].pc+=r+1;
-            r = execute(t, &schedulerTable[i]);
-            schedulerTable[i].pc+=r;
+            Serial.print(F("Program size: "));
+            Serial.println(schedulerTable[i].ps);
 
+            Serial.print(F("Instruction buffer: "));
+            Serial.println(b);
             */
-            if (schedulerTable[i].pc >= schedulerTable[i].ps) {
+            schedulerTable[i].pc += r;
+
+            execute(atoi(b), &schedulerTable[i]);
+            
+            if (schedulerTable[i].pc >= schedulerTable[i].ps-1) {
                 removeTask(schedulerTable[i].p_id);
             }
         }

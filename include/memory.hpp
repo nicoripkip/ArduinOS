@@ -47,10 +47,12 @@ struct memtable_s
 void initMemory();
 
 byte *pushInt(byte *address, uint8_t &sp, int x, int y);
-byte *pushChar(byte *address, uint8_t &sp, char x, int y);
+byte *pushChar(byte *address, uint8_t &sp, char x);
 byte *pushFloat(byte *address, uint8_t &sp, float x);
 byte *pushString(byte *address, uint8_t &sp, char *x, int z);
 
+
+byte popByte(byte *address, uint8_t &sp);
 int popInt(byte *address, uint8_t &sp);
 char popChar(byte *address, uint8_t &sp);
 float popFloat(byte *address, uint8_t &sp);
@@ -61,10 +63,12 @@ void memAlloc(uint8_t pid, char *name, size_t size, memtype_e type, byte *addres
 memtable_s *memRead(uint8_t pid, char *name);
 void memFree(uint8_t pid, char *name);
 byte *stackAlloc(size_t size);
+byte *stackFree(byte *address, size_t size);
 uint8_t readDataRegion(char *buffer, uint16_t address);
 
 void showStack(byte *address);
 void showMemTable();
 
+void showStck();
 
 #endif

@@ -296,4 +296,5 @@ void kill()
 void memshow()
 {
     showMemTable();
+    showStck();
 }

@@ -68,11 +68,9 @@ byte *pushInt(byte *address, uint8_t &sp, int x, int y)
         return;
     }
 
-    // Serial.println(sp);
-
-    byte *a = pushByte(address, sp, INT);
     pushByte(address, sp, x);
     pushByte(address, sp, y);
+    byte *a = pushByte(address, sp, INT);
 
     return a;
 }
@@ -84,15 +82,15 @@ byte *pushInt(byte *address, uint8_t &sp, int x, int y)
  * @param x
  * @return uint16_t
 */
-byte *pushChar(byte *address, uint8_t &sp, char x, int y)
+byte *pushChar(byte *address, uint8_t &sp, char x)
 {
     if (2 + sp > 32) {
         Serial.println(F("[error]\tNo space available in memory!"));
         return;
     }
 
-    pushByte(address, sp, CHAR);
     pushByte(address, sp, x);
+    pushByte(address, sp, CHAR);
 }
 
 
@@ -141,7 +139,6 @@ int popInt(byte *address, uint8_t &sp)
 {
     byte x = popByte(address, sp);
     byte y = popByte(address, sp);
-    popByte(address, sp);
 
     return (int)(x * 256) + y;
 }
@@ -191,7 +188,6 @@ void memAlloc(uint8_t pidd, char *name, size_t size, memtype_e type, byte *addre
     for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
         if (memoryTable[i].state == FREE) {
             memoryTable[i].pid = pidd;
-            // memoryTable[i].coolerepid = pidd;
             memcpy(memoryTable[i].name, name, 12);
             memoryTable[i].type = type;
             memoryTable[i].state = OCCUPIED;
@@ -216,7 +212,7 @@ memtable_s *memRead(uint8_t pid, char *name)
         }
     }
 
-    Serial.println(F("[error]\tVariable doesn't exist"));
+    Serial.println(F("[error] Variable doesn't exist"));
 }
 
 
@@ -278,13 +274,15 @@ byte *stackAlloc(size_t size)
 {    
     for (uint16_t i = STACK_ADDRESS_START; i < STACK_ADDRESS_END; i++) {
         if (stack[i] == 254) {
-            uint8_t j;
-            for (j = i; i < i + size; i++) if (stack[j] != 254) break;
 
+            // Loop to check if their is enough memory present
+            uint8_t j;
+            for (j = i; j < i + size; j++) if (stack[j] != 254) break;
+
+            // If their is enough memory present allocate the stack
             if (j >= i+size) {
                 if (j+1 < STACK_ADDRESS_END) {
                     byte *t = &stack[i];
-                    Serial.println((uint16_t)t);
                     return t;
                 } else {
                     Serial.println(F("[error]\tProcess can't allocate stack"));
@@ -293,6 +291,16 @@ byte *stackAlloc(size_t size)
             }
         }
     }
+}
+
+
+byte *stackFree(byte *address, size_t size)
+{
+    for (uint8_t i = 0; i < size; i++) {
+        address[i] = 254;
+    }
+
+    return nullptr;
 }
 
 
@@ -305,7 +313,7 @@ void showStack(byte *address)
 {
     for (uint8_t i = 0; i < 32; i++) {
         Serial.print(F("Address: "));
-        Serial.print(i);
+        Serial.print((uint16_t)address);
         Serial.print(F(" | data: "));
         Serial.println(address[i]);
     }
@@ -327,5 +335,17 @@ void showMemTable()
         Serial.print(memoryTable[i].type);
         Serial.print(F(" | address: "));
         Serial.println((uint16_t)memoryTable[i].address);
+    }
+}
+
+
+void showStck()
+{
+    for (uint16_t i = 0; i < STACK_ADDRESS_END; i++) {
+        Serial.print(F("Address: "));
+        byte *t = &stack[i];
+        Serial.print((uint16_t)t);
+        Serial.print(F(" | value: "));
+        Serial.println(stack[i]);
     }
 }
