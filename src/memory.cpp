@@ -64,7 +64,7 @@ byte popByte(byte *address, uint8_t &sp)
 byte *pushInt(byte *address, uint8_t &sp, int x, int y)
 {
     if (2 + sp > 32) {
-        Serial.println(F("[error]\tNo space available in memory!"));
+        Serial.println(F("[error] No space available in memory!"));
         return;
     }
 
@@ -85,7 +85,7 @@ byte *pushInt(byte *address, uint8_t &sp, int x, int y)
 byte *pushChar(byte *address, uint8_t &sp, char x)
 {
     if (2 + sp > 32) {
-        Serial.println(F("[error]\tNo space available in memory!"));
+        Serial.println(F("[error] No space available in memory!"));
         return;
     }
 
@@ -97,12 +97,24 @@ byte *pushChar(byte *address, uint8_t &sp, char x)
 /**
  * Function to push a float on the stack
  * 
- * @param x
+ * @param x1
+ * @param x2
+ * @param x3
+ * @param x4
  * @return uint16_t
 */
-byte *pushFloat(byte *address, uint8_t &sp, float x)
+byte *pushFloat(byte *address, uint8_t &sp, uint8_t x1, uint8_t x2, uint8_t x3, uint8_t x4)
 {
+    if (2 + sp > 32) {
+        Serial.println(F("[error] No space available in memory!"));
+        return;
+    }
 
+    pushByte(address, sp, x4);
+    pushByte(address, sp, x3);
+    pushByte(address, sp, x2);
+    pushByte(address, sp, x1);
+    pushByte(address, sp, FLOAT);
 }
 
 
@@ -121,12 +133,12 @@ byte *pushString(byte *address, uint8_t &sp, char *x)
         return;
     }
 
-    pushByte(address, sp, STRING);
-    pushByte(address, sp, l);
     for (uint8_t i = 0; i < l; i++) {
         pushByte(address, sp, x[i]);
     }
     pushByte(address, sp, ZERO_TERMINATOR);
+    pushByte(address, sp, ++l);
+    pushByte(address, sp, STRING);
 }
 
 

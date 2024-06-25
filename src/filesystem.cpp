@@ -284,7 +284,7 @@ uint16_t showFreeSpace()
 
     for (uint16_t i = 0; i < MAX_FAT_SIZE; i++) {
         if (FAT[i].size != 0) {
-            c+= FAT[i].size;
+            c += FAT[i].size;
         }
     }
 

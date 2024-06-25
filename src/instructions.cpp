@@ -1,20 +1,21 @@
 #include "instructions.hpp"
 #include "instructionset.hpp"
 #include "memory.hpp"
-// #include "filesystem.cpp"
 #include "scheduler.hpp"
-#include <EEPROM.h>
 
 
 #define SPATIAL_CHARACTER 32
 
 
-static char var1[10];       // value buffer 1
-static char var2[10];       // value buffer 2
+static char pbuffer[10];       // value buffer 1      // value buffer 2
 static byte *s_address;
 static memtype_e s_type;
-static int result1;
-static int result2;
+
+// Define value registers to hold retrieved data
+static uint8_t r1;
+static uint8_t r2;
+static uint8_t r3;
+static uint8_t r4;
 
 
 /**
@@ -35,57 +36,88 @@ uint8_t execute(byte instruction, struct task_s *task)
     {
         case CHARR:
             task->pc+=1;
-            readDataRegion(var1, task->fp+task->pc);
+
+            readDataRegion(pbuffer, task->fp+task->pc);
             task->pc+=2;
       
-            pushChar(task->stack, task->sp, var1[0]);
-            // showStack(task->stack);
-            r = task->pc;
+            pushChar(task->stack, task->sp, pbuffer[0]);
             break;
         case INTT:
             task->pc+=1;
-            readDataRegion(var1, task->fp+task->pc);
-            task->pc+=2;
-            readDataRegion(var2, task->fp+task->pc);
+
+            readDataRegion(pbuffer, task->fp+task->pc);
+            r1 = atoi(pbuffer);
             task->pc+=2;
 
-            result1 = atoi(var1);
-            result2 = atoi(var2);
-            
-            s_type = INT;
-        
-            s_address = pushInt(task->stack, task->sp, result2, result1);    
-            // showStack(task->stack);
-            r = task;
+            readDataRegion(pbuffer, task->fp+task->pc);
+            r2 = atoi(pbuffer);
+            task->pc+=2;
+
+            pushInt(task->stack, task->sp, r2, r1);    
+            showStack(task->stack);
             break;
         case STRINGG:
+            task->pc+=1;
+            char tmp[10];
+            memset(tmp, '\0', 10);
+
+            while ((int)pbuffer[0] != 48) {
+                readDataRegion(pbuffer, task->fp+task->pc);
+                task->pc+=2;
+
+                if ((int)pbuffer[0] != 48) {
+                    strncat(tmp, &pbuffer[0], 1);
+                }
+            }
+
+            pushString(task->stack, task->sp, tmp);
+            showStack(task->stack);
             break;
         case FLOATT:
+            task->pc+=1;
+            task->pc+=readDataRegion(pbuffer, task->fp+task->pc);
+            r1 = atoi(pbuffer);
+            task->pc++;
+
+            task->pc+=readDataRegion(pbuffer, task->fp+task->pc);
+            r2 = atoi(pbuffer);
+            task->pc++;
+
+            task->pc+=readDataRegion(pbuffer, task->fp+task->pc);
+            r3 = atoi(pbuffer);
+            task->pc++;
+
+            task->pc+=readDataRegion(pbuffer, task->fp+task->pc);
+            r4 = atoi(pbuffer);
+            task->pc++;
+
+            pushFloat(task->stack, task->sp, r1, r2, r3, r4);
+            showStack(task->stack);
             break;
         case SET:
             task->pc+=2;
-            readDataRegion(var1, task->fp+task->pc);
+            readDataRegion(pbuffer, task->fp+task->pc);
             task->pc+=2;
 
             switch (s_type) 
             {
                 case INT:
                     int v = popInt(task->stack, task->sp);
-                    memAlloc(task->p_id, var1, 2, INT, s_address);
+                    memAlloc(task->p_id, pbuffer, 2, INT, s_address);
                     break;
                 case CHAR:
-                    memAlloc(task->p_id, var1, 1, CHAR, s_address);
+                    memAlloc(task->p_id, pbuffer, 1, CHAR, s_address);
                     break;
                 case FLOAT:
-                    memAlloc(task->p_id, var1, 4, FLOAT, s_address);
+                    memAlloc(task->p_id, pbuffer, 4, FLOAT, s_address);
                     break;
                 case STRING:
-                    memAlloc(task->p_id, var1, 4, STRING, s_address);
+                    memAlloc(task->p_id, pbuffer, 4, STRING, s_address);
                     break;
             }
             break;
         case GET:
-            r = readDataRegion(var1, task->fp+task->pc);
+            r = readDataRegion(pbuffer, task->fp+task->pc);
             // Serial.print(F("Variable type: "));
             // Serial.println(s_type);
             
@@ -121,7 +153,7 @@ uint8_t execute(byte instruction, struct task_s *task)
             showStack(task->stack);
             break;
         case DECREMENT:
-            result2--;
+            r2--;
             break;
         case PLUS:
 
@@ -209,7 +241,7 @@ uint8_t execute(byte instruction, struct task_s *task)
         case DIGITALWRITE:
             break;
         case PRINT:
-            Serial.print(result2);
+            Serial.print(r2);
             break;
         case PRINTLN:
             s_type = popByte(task->stack, task->sp);

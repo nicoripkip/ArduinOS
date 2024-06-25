@@ -48,8 +48,8 @@ void initMemory();
 
 byte *pushInt(byte *address, uint8_t &sp, int x, int y);
 byte *pushChar(byte *address, uint8_t &sp, char x);
-byte *pushFloat(byte *address, uint8_t &sp, float x);
-byte *pushString(byte *address, uint8_t &sp, char *x, int z);
+byte *pushFloat(byte *address, uint8_t &sp, uint8_t x1, uint8_t x2, uint8_t x3, uint8_t x4);
+byte *pushString(byte *address, uint8_t &sp, char *x);
 
 
 byte popByte(byte *address, uint8_t &sp);
