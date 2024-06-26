@@ -8,8 +8,11 @@
 
 
 static char pbuffer[10];       // value buffer 1      // value buffer 2
+static char strbuffer[10];
 static byte *s_address;
 static memtype_e s_type;
+static uint8_t s;
+static struct memtable_s *var;
 
 // Define value registers to hold retrieved data
 static uint8_t r1;
@@ -25,12 +28,10 @@ static uint8_t r4;
 */
 uint8_t execute(byte instruction, struct task_s *task)
 {
-    uint8_t x = 0;
-    uint8_t y = 0;
     uint8_t r = 0;
 
-    Serial.print(F("Instruction run: "));
-    Serial.println(instruction);
+    // Serial.print(F("Instruction run: "));
+    // Serial.println(instruction);
 
     switch (instruction)
     {
@@ -54,24 +55,23 @@ uint8_t execute(byte instruction, struct task_s *task)
             task->pc+=2;
 
             pushInt(task->stack, task->sp, r2, r1);    
-            showStack(task->stack);
+
+            // showStack(task->stack);
             break;
         case STRINGG:
             task->pc+=1;
-            char tmp[10];
-            memset(tmp, '\0', 10);
+            memset(strbuffer, '\0', 10);
 
             while ((int)pbuffer[0] != 48) {
                 readDataRegion(pbuffer, task->fp+task->pc);
                 task->pc+=2;
 
                 if ((int)pbuffer[0] != 48) {
-                    strncat(tmp, &pbuffer[0], 1);
+                    strncat(strbuffer, &pbuffer[0], 1);
                 }
             }
 
-            pushString(task->stack, task->sp, tmp);
-            showStack(task->stack);
+            pushString(task->stack, task->sp, strbuffer);
             break;
         case FLOATT:
             task->pc+=1;
@@ -92,70 +92,140 @@ uint8_t execute(byte instruction, struct task_s *task)
             task->pc++;
 
             pushFloat(task->stack, task->sp, r1, r2, r3, r4);
-            showStack(task->stack);
             break;
         case SET:
-            task->pc+=2;
+            task->pc+=1;
             readDataRegion(pbuffer, task->fp+task->pc);
             task->pc+=2;
 
-            switch (s_type) 
-            {
-                case INT:
+            s_type = popByte(task->stack, task->sp);
+
+            Serial.println(s_type);
+
+            if (s_type == INT) {
+                    s_address = stackAlloc(2);
+                    
                     int v = popInt(task->stack, task->sp);
+                    s = 0;
+                    
+                    pushByte(s_address, s, v % 256);
+                    pushByte(s_address, s, v / 256);
+                    
                     memAlloc(task->p_id, pbuffer, 2, INT, s_address);
-                    break;
-                case CHAR:
+            } else if (s_type == CHAR) {
+                    s_address = stackAlloc(1);
+
+                    char c = popChar(task->stack, task->sp);
+                    s = 0;
+
+                    pushByte(s_address, s, c);
+
                     memAlloc(task->p_id, pbuffer, 1, CHAR, s_address);
-                    break;
-                case FLOAT:
+            } else if (s_type == FLOAT) {
+                    s_address = stackAlloc(4);
+
+                    float f = popFloat(task->stack, task->sp);
+                
+                    uint32_t tt = *((uint32_t*)&f);
+                    s = 0;
+                    
+                    pushByte(s_address, s, (byte)(tt & 0xFF));
+                    pushByte(s_address, s, (byte)((tt >> 8) & 0xFF));
+                    pushByte(s_address, s, (byte)((tt >> 16) & 0xFF));
+                    pushByte(s_address, s, (byte)((tt >> 24) & 0xFF));
+
                     memAlloc(task->p_id, pbuffer, 4, FLOAT, s_address);
-                    break;
-                case STRING:
-                    memAlloc(task->p_id, pbuffer, 4, STRING, s_address);
-                    break;
+            } else if (s_type == STRING) {
+                    Serial.println(F("Yoo "));
+
+                    memset(strbuffer, '\0', 10);
+                    r1 = popString(task->stack, task->sp, strbuffer);
+
+                    s = 0;
+
+                    s_address = stackAlloc(r1);
+                    
+                    for (uint8_t i = 0; i < strlen(strbuffer); i++) {
+                        pushByte(s_address, s, strbuffer[i]);
+                    }
+
+                    memAlloc(task->p_id, pbuffer, s, STRING, s_address);
             }
+            // showStack(task->stack);
             break;
         case GET:
+
+            task->pc+=1;
             r = readDataRegion(pbuffer, task->fp+task->pc);
+            task->pc+=2;
             // Serial.print(F("Variable type: "));
             // Serial.println(s_type);
             
-            /*
-            struct memtable_s *var = memRead(task->p_id, var1);
+            
+            var = memRead(task->p_id, pbuffer);
+            s = var->size;
 
-            switch (var->type) 
-            {
-                case INT:
-                    // pushInt(task->stack, task->sp, atoi(var->value), atoi(var->value) <= 255 ? 0 : 1);
-                    // showStack(task->stack);
-                    // Serial.print(F("Get: "));
-                    // Serial.println(result);
-                    break;
-                case CHAR:
-                    // pushChar(task->stack, task->sp, var->value[0], 0);
-                    break;
-                case FLOAT:
+            if (var->type == INT) {
+                int xx = popInt(var->address, s);
+                pushInt(task->stack, task->sp, xx % 256, xx / 256);
+            } else if (var->type == CHAR) {
+                char cc = popChar(var->address, s);
+                pushChar(task->stack, task->sp, cc);
+            } else if (var->type == FLOAT) {
 
-                    break;
-                case STRING:
+            } else if (var->type == STRING) {
 
-                    break;
             }
 
-            memFree(task->p_id, var1);
-            */
+            //showStack(task->stack);
+            
+            stackFree(var->address, var->size);
+            memFree(task->p_id, pbuffer);
+
             break;
         case INCREMENT:
-            // int varI = popInt(task->stack, task->sp);
-            // varI++;
-            // pushInt(task->stack, task->sp, varI, varI <= 255 ? 0 : 1);
-            showStack(task->stack);
+            s_type = popByte(task->stack, task->sp);
+
+            if (s_type == INT) {
+                int varI = popInt(task->stack, task->sp);
+                varI++;
+                pushInt(task->stack, task->sp, varI % 256, varI / 256);
+            }
+            
+            task->pc+=1;
             break;
         case DECREMENT:
             r2--;
             break;
         case PLUS:
+            int p1;
+            int p2;
+            float f1;
+            float f2;
+            
+            s_type = popByte(task->stack, task->sp);
+            if (s_type == INT) {
+                p1 = popInt(task->stack, task->sp);
+            } else if (s_type == FLOAT) {
+                f1 = popFloat(task->stack, task->sp);
+            }
+
+            s_type = popByte(task->stack, task->sp);
+            if (s_type == INT) {
+                p2 = popInt(task->stack, task->sp);
+            } else if (s_type == FLOAT) {
+                f2 = popFloat(task->stack, task->sp);
+            }   
+            
+            if (s_type == INT) {
+                pushInt(task->stack, task->sp, (p1 + p2) % 256, (p1 + p2) / 256);
+            } else if (s_type == FLOAT) {
+                float f3 = f1 + f2;
+
+
+            }
+
+            task->pc+=1;
 
             break;
         case MINUS:
@@ -246,8 +316,9 @@ uint8_t execute(byte instruction, struct task_s *task)
         case PRINTLN:
             s_type = popByte(task->stack, task->sp);
 
-            Serial.print(F("Datatype: "));
-            Serial.println(s_type);
+
+            // Serial.print(F("Datatype: "));
+            // Serial.println(s_type);
 
             switch (s_type) 
             {
@@ -312,7 +383,7 @@ uint8_t execute(byte instruction, struct task_s *task)
         case WAITUNTILDONE:
             break;
         default:
-            Serial.print(F("[error]\tOS cant understand instruction: "));
+            Serial.print(F("[error] OS cant understand instruction: "));
             Serial.println(instruction);
             r = 0;
     }

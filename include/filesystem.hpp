@@ -28,6 +28,7 @@ void eraseFATEntry(char *file);
 void eraseAll();
 uint16_t showFreeSpace();
 uint8_t readDataRegion(char *buffer, uint16_t address);
+void shuffle();
 
 
 #endif

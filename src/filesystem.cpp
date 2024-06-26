@@ -163,7 +163,7 @@ void showFT()
 */
 uint32_t totalFilesInFAT()
 {
-    return EEPROM.read(0);
+    return totalFiles;
 }
 
 
@@ -226,6 +226,8 @@ void eraseAll()
 */
 void allFilesOnFAT()
 {
+    totalFiles = 0;
+
     for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
         // if (strcmp(FAT[i].filename, "")) {
             Serial.print(F(" -- "));
@@ -233,6 +235,11 @@ void allFilesOnFAT()
             Serial.print(F(" and: "));
             Serial.println(FAT[i].contents);
         // }
+        if (strcmp(FAT[i].filename, "")) {
+            totalFiles++;
+        }
+
+        EEPROM.put(0, totalFiles);
     }
 }
 
@@ -306,4 +313,26 @@ uint8_t readDataRegion(char *buffer, uint16_t address)
     }   
 
     return counter;
+}
+
+
+/**
+ * Function to shuffle the fat table 
+ *
+ */
+void shuffle() 
+{
+    Entry_s tmp;
+
+    for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
+        if (strcmp(FAT[i].filename, "") == 0) {
+            if (i < MAX_FAT_SIZE-1) {
+                tmp = FAT[i];
+                FAT[i] = FAT[i+1];
+                FAT[i+1] = tmp;
+            }
+        }
+    }
+
+    EEPROM.put(2, FAT);
 }

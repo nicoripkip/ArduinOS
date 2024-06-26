@@ -187,10 +187,6 @@ void runTasks()
             schedulerTable[i].pc += r;
 
             execute(atoi(b), &schedulerTable[i]);
-            
-            if (schedulerTable[i].pc >= schedulerTable[i].ps-1) {
-                removeTask(schedulerTable[i].p_id);
-            }
         }
     }
 }

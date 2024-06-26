@@ -40,6 +40,7 @@ struct memtable_s
     char            name[5];
     memtype_e       type;
     memstate_e      state;
+    size_t          size;
     unsigned char   *address;
 };
 
@@ -52,12 +53,12 @@ byte *pushFloat(byte *address, uint8_t &sp, uint8_t x1, uint8_t x2, uint8_t x3, 
 byte *pushString(byte *address, uint8_t &sp, char *x);
 
 
+byte *pushByte(byte *address, uint8_t &sp, byte b);
 byte popByte(byte *address, uint8_t &sp);
 int popInt(byte *address, uint8_t &sp);
 char popChar(byte *address, uint8_t &sp);
 float popFloat(byte *address, uint8_t &sp);
-char *popString(byte *address, uint8_t &sp);
-
+uint8_t popString(byte *address, uint8_t &sp, char *buff);
 
 void memAlloc(uint8_t pid, char *name, size_t size, memtype_e type, byte *address);
 memtable_s *memRead(uint8_t pid, char *name);

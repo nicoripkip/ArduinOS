@@ -129,7 +129,7 @@ byte *pushString(byte *address, uint8_t &sp, char *x)
     uint16_t l = strlen(x);
 
     if (3 + l + sp > 32) {
-        Serial.println(F("[error]\tNo space available in memory!"));
+        Serial.println(F("[error] No space available in memory!"));
         return;
     }
 
@@ -165,21 +165,41 @@ int popInt(byte *address, uint8_t &sp)
 char popChar(byte *address, uint8_t &sp)
 {
     byte r = popByte(address, sp);
-    popByte(address, sp);
 
     return (char)r;
 }
 
 
+/**
+ * Function to pop a floating point value from the stack
+ *
+ */
 float popFloat(byte *address, uint8_t &sp)
 {
+    byte x[4];
 
+    x[1] = popByte(address, sp);
+    x[2] = popByte(address, sp);
+    x[3] = popByte(address, sp);
+    x[4] = popByte(address, sp);
+
+    float y = *((float *)&x);
+
+    return y;
 }
 
 
-char *popString(byte *address, uint8_t &sp)
+uint8_t popString(byte *address, uint8_t &sp, char *buff)
 {
+    byte l = popByte(address, sp);
 
+    for (uint8_t i = 0; i < l; i++) {
+        char c = (char)popByte(address, sp);
+        strncat(buff, &c, 1);
+    }
+
+
+    return l-1;
 }
 
 
@@ -199,11 +219,12 @@ void memAlloc(uint8_t pidd, char *name, size_t size, memtype_e type, byte *addre
 
     for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
         if (memoryTable[i].state == FREE) {
-            memoryTable[i].pid = pidd;
+            memoryTable[i].pid      = pidd;
             memcpy(memoryTable[i].name, name, 12);
-            memoryTable[i].type = type;
-            memoryTable[i].state = OCCUPIED;
-            memoryTable[i].address = address;
+            memoryTable[i].type     = type;
+            memoryTable[i].state    = OCCUPIED;
+            memoryTable[i].size     = size;
+            memoryTable[i].address  = address;
             break;
         }
     }
@@ -270,6 +291,7 @@ void memFree(uint8_t pid, char *name)
             memcpy(memoryTable[i].name, "", 0);
             memoryTable[i].type = VOID;
             memoryTable[i].state = FREE;
+            memoryTable[i].size = 0;
             memoryTable[i].address = nullptr;
         }
     }
@@ -297,7 +319,7 @@ byte *stackAlloc(size_t size)
                     byte *t = &stack[i];
                     return t;
                 } else {
-                    Serial.println(F("[error]\tProcess can't allocate stack"));
+                    Serial.println(F("[error] Process can't allocate stack"));
                     return nullptr;
                 }
             }
@@ -323,9 +345,11 @@ byte *stackFree(byte *address, size_t size)
 */
 void showStack(byte *address)
 {
+    Serial.println(F("\n----- Stack info ------"));
+
     for (uint8_t i = 0; i < 32; i++) {
         Serial.print(F("Address: "));
-        Serial.print((uint16_t)address);
+        Serial.print((uint16_t)address + i);
         Serial.print(F(" | data: "));
         Serial.println(address[i]);
     }

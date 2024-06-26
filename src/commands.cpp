@@ -122,10 +122,11 @@ void neofetch()
 void files()
 {
     Serial.flush();
+    Serial.println(F("-------- FILES --------"));
+    shuffle();
+    allFilesOnFAT();
     Serial.print(F("[info] Total files in filesystem: "));
     Serial.println(totalFilesInFAT());
-    Serial.println(F("-------- FILES --------"));
-    allFilesOnFAT();
 }
 
 
