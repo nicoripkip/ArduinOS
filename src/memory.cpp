@@ -231,6 +231,18 @@ void memAlloc(uint8_t pidd, char *name, size_t size, memtype_e type, byte *addre
 }
 
 
+bool memCheck(uint8_t pid, char *name) 
+{
+    for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
+        if (strcmp(memoryTable[i].name, name) == 0 && memoryTable[i].pid == pid) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 /**
  * Function to find the value from the memory table
  * 
@@ -245,7 +257,7 @@ memtable_s *memRead(uint8_t pid, char *name)
         }
     }
 
-    Serial.println(F("[error] Variable doesn't exist"));
+    return nullptr;
 }
 
 
@@ -288,7 +300,7 @@ void memFree(uint8_t pid, char *name)
     for (uint8_t i = 0; i < MEMORY_TABLE_SIZE; i++) {
         if (memoryTable[i].pid == pid) {
             memoryTable[i].pid = 0;
-            memcpy(memoryTable[i].name, "", 0);
+            memcpy(memoryTable[i].name, '\0', 0);
             memoryTable[i].type = VOID;
             memoryTable[i].state = FREE;
             memoryTable[i].size = 0;

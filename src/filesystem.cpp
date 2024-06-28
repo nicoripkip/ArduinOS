@@ -32,6 +32,24 @@ void initFileSystem()
 }
 
 
+void createFATEntry(char *file, size_t size) 
+{
+    if (strcmp(file, "") == 0) {
+        Serial.println(F("[error] No filename given!"));
+        return;
+    } 
+
+    if (size == 0) {
+        Serial.println(F("[error] No data length given!"));
+        return;
+    }
+
+    for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
+
+    }
+}
+
+
 /**
  * Function to write a file to the fat
  * 

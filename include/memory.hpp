@@ -67,6 +67,7 @@ byte *stackAlloc(size_t size);
 byte *stackFree(byte *address, size_t size);
 uint8_t readDataRegion(char *buffer, uint16_t address);
 
+bool memCheck(uint8_t pid, char *name);
 void showStack(byte *address);
 void showMemTable();
 
