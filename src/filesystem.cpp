@@ -19,6 +19,7 @@ static char buffer[30];
 */
 void initFileSystem()
 {
+    totalFiles = 0;
     totalFiles = EEPROM.read(0);
     availableSpace = EEPROM.read(1);
     EEPROM.get(2, FAT);
@@ -69,10 +70,12 @@ void writeFATEntry(char *file, size_t size, char *contents)
         return;
     }
 
+    /*
     if (totalFiles+1 > MAX_FAT_SIZE) {
         Serial.println(F("[error] Too many files on FAT!"));
         return;
     }
+    */
 
     // Check if file name already exists on filesystem
     for (uint8_t i = 0; i < MAX_FAT_SIZE; i++) {
@@ -231,7 +234,8 @@ void eraseAll()
         EEPROM.write(i, 255);
     }
 
-    EEPROM.write(0, (totalFiles = 0));
+    totalFiles = 0;
+    EEPROM.write(0, totalFiles);
     EEPROM.write(1, (availableSpace = 0));
     EEPROM.put(2, FAT);
 }

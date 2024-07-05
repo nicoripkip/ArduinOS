@@ -178,10 +178,10 @@ float popFloat(byte *address, uint8_t &sp)
 {
     byte x[4];
 
-    x[1] = popByte(address, sp);
-    x[2] = popByte(address, sp);
     x[3] = popByte(address, sp);
-    x[4] = popByte(address, sp);
+    x[2] = popByte(address, sp);
+    x[1] = popByte(address, sp);
+    x[0] = popByte(address, sp);
 
     float y = *((float *)&x);
 
@@ -382,7 +382,9 @@ void showMemTable()
         Serial.print(F(" | data type: "));
         Serial.print(memoryTable[i].type);
         Serial.print(F(" | address: "));
-        Serial.println((uint16_t)memoryTable[i].address);
+        Serial.print((uint16_t)memoryTable[i].address);
+        Serial.print(F(" | size: "));
+        Serial.println(memoryTable[i].size);
     }
 }
 
